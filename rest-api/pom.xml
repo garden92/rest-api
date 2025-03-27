@@ -1,0 +1,78 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+ 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+ 	<modelVersion>4.0.0</modelVersion>
+ 	
+ 	<parent>
+ 		<groupId>com.kt.kol</groupId>
+ 		<artifactId>kol-rest-api</artifactId>
+ 		<version>0.0.1</version>
+ 	</parent>
+ 	
+ 	
+ 	<artifactId>rest-api</artifactId>
+ 
+ 	<dependencies>
+ 		<dependency>
+ 			<groupId>com.kt.kol</groupId>
+ 			<artifactId>common</artifactId>
+ 			<version>0.0.1</version>
+ 		</dependency>
+ 		
+ 		<dependency>
+             <groupId>org.springframework.boot</groupId>
+             <artifactId>spring-boot-starter</artifactId>
+         </dependency>
+ 
+ 		<dependency>
+ 			<groupId>org.springframework.boot</groupId>
+ 			<artifactId>spring-boot-starter-test</artifactId>
+ 			<scope>test</scope>
+ 		</dependency>
+ 		
+ 
+ 		<dependency>
+ 			<groupId>org.projectlombok</groupId>
+ 			<artifactId>lombok</artifactId>
+ 			<optional>true</optional>
+ 		</dependency>
+ 
+ 		<dependency>
+ 			<groupId>org.springframework.boot</groupId>
+ 			<artifactId>spring-boot-starter-web</artifactId>
+ 		</dependency>
+ 
+ 		<dependency>
+ 			<groupId>org.springframework.cloud</groupId>
+ 			<artifactId>spring-cloud-starter-openfeign</artifactId>
+ 		</dependency>
+ 
+ 		<dependency>
+ 			<groupId>org.springframework.boot</groupId>
+ 			<artifactId>spring-boot-starter-data-r2dbc</artifactId>
+ 		</dependency>
+ 		<dependency>
+ 			<groupId>org.postgresql</groupId>
+ 			<artifactId>postgresql</artifactId>
+ 		</dependency>
+ 		<dependency>
+ 			<groupId>org.postgresql</groupId>
+ 			<artifactId>r2dbc-postgresql</artifactId>
+ 		</dependency>
+ 		
+ 		<dependency>
+ 			<groupId>org.json</groupId>
+ 			<artifactId>json</artifactId>
+ 			<version>20231013</version>
+ 		</dependency>
+ 
+ 		<dependency>
+ 		    <groupId>com.kt.icis</groupId>
+ 		    <artifactId>onm-bmon-api</artifactId>
+ 		    <version>2.0.0</version>
+ 		    <scope>system</scope>
+ 		    <systemPath>${lib.external.dir}/com/kt/icis/onm-bmon-api/2.0.0/onm-bmon-api-2.0.0.jar</systemPath>
+ 		</dependency>
+ 	</dependencies>
+ 	
+ </project>

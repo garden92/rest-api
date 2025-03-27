@@ -1,0 +1,84 @@
+# spring default
+spring:
+  profiles:
+    active: local
+  application:
+    name: kol-rest-api
+
+server:
+  port: 8080
+  bmon: true
+  servlet.context-path: /kol-rest-api
+
+# spring boot - actuator expose
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, loggers, prometheus
+
+---
+# Profile - local
+spring:
+  config:
+    activate:
+      on-profile: local
+  devtools:
+    restart:
+      enabled: true
+  r2dbc:
+    url: r2dbc:postgresql://10.241.127.68:5432/devkol
+    username: kolapp
+    #password: ${DB_PWD}
+server:
+  port: 8003
+
+logging:
+  config: classpath:logback-spring-dev.xml
+  file:
+    name: kol-rest-api
+    path: /var/log
+e2e:
+  properties:
+    path: /KOS-OL/workspace_final/kol-rest-gw/core/config/bmon/dev
+gw.itg.url: http://127.0.0.1:8001
+
+---
+# Profile - dev
+spring:
+  config:
+    activate:
+      on-profile: dev
+  r2dbc:
+    url: r2dbc:postgresql://pgdb-az01-dev-kol-01.postgres.database.azure.com:5432/devkol?sslmode=require&channelBinding=disable
+    username: kolapp
+    password: ${DB_PWD}
+logging:
+  config: classpath:logback-spring-dev.xml
+  file:
+    name: kol-rest-api
+    path: /var/log
+e2e:
+  properties:
+    path: /config/bmon/dev
+gw.itg.url: http://kol-itg-gw
+
+---
+# Profile - prd
+spring:
+  config:
+    activate:
+      on-profile: prd
+  r2dbc:
+    url: r2dbc:postgresql://pgdb-az01-prd-kol-01.postgres.database.azure.com:5432/prdkol?sslmode=require&channelBinding=disable
+    username: kolapp
+    password: ${DB_PWD}
+logging:
+  config: classpath:logback-spring-prd.xml
+  file:
+    name: kol-rest-api
+    path: /var/log
+e2e:
+  properties:
+    path: /config/bmon/prd
+gw.itg.url: http://kol-itg-gw
