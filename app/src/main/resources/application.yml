@@ -63,6 +63,12 @@ e2e:
     path: /config/bmon/dev
 gw.itg.url: http://kol-itg-gw
 
+management:
+  endpoint:
+    health:
+      db:
+        enabled: false
+
 ---
 # Profile - sit
 spring:
