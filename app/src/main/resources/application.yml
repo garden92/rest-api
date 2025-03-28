@@ -64,6 +64,26 @@ e2e:
 gw.itg.url: http://kol-itg-gw
 
 ---
+# Profile - sit
+spring:
+  config:
+    activate:
+      on-profile: sit
+  r2dbc:
+    url: r2dbc:postgresql://pgdb-az01-dev-kol-01.postgres.database.azure.com:5432/devkol?sslmode=require&channelBinding=disable
+    username: kolapp
+    password: ${DB_PWD}
+logging:
+  config: classpath:logback-spring-prd.xml
+  file:
+    name: kol-rest-api
+    path: /var/log
+e2e:
+  properties:
+    path: /config/bmon/sit
+gw.itg.url: http://kol-itg-gw
+
+---
 # Profile - prd
 spring:
   config:
