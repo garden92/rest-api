@@ -70,7 +70,7 @@ spring:
     activate:
       on-profile: sit
   r2dbc:
-    url: r2dbc:postgresql://pgdb-az01-dev-kol-01.postgres.database.azure.com:5432/devkol?sslmode=require&channelBinding=disable
+    url: r2dbc:postgresql://pgdb-az01-dev-kol-02.postgres.database.azure.com:5432/devkol?sslmode=require&channelBinding=disable
     username: kolapp
     password: ${DB_PWD}
 logging:
