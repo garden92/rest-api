@@ -21,11 +21,6 @@ management:
   endpoint:
     health:
       show-details: always
-  health:
-    r2dbc:
-      enabled: false
-    db:
-      enabled: false
 
 ---
 # Profile - local
@@ -73,6 +68,13 @@ e2e:
     path: /config/bmon/dev
 gw.itg.url: http://kol-itg-gw
 
+management:
+  health:
+    r2dbc:
+      enabled: false
+    db:
+      enabled: false
+
 ---
 # Profile - sit
 spring:
@@ -92,6 +94,13 @@ e2e:
   properties:
     path: /config/bmon/sit
 gw.itg.url: http://kol-itg-gw
+
+management:
+  health:
+    r2dbc:
+      enabled: false
+    db:
+      enabled: false
 
 ---
 # Profile - prd
