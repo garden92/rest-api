@@ -13,9 +13,19 @@ server:
 # spring boot - actuator expose
 management:
   endpoints:
+    health:
+      show-details: always
     web:
       exposure:
         include: health, loggers, prometheus
+  endpoint:
+    health:
+      show-details: always
+  health:
+    r2dbc:
+      enabled: false
+    db:
+      enabled: false
 
 ---
 # Profile - local
@@ -62,12 +72,6 @@ e2e:
   properties:
     path: /config/bmon/dev
 gw.itg.url: http://kol-itg-gw
-
-management:
-  endpoint:
-    health:
-      db:
-        enabled: false
 
 ---
 # Profile - sit
