@@ -7,13 +7,14 @@ public record ResponseStdVO<T>(
 		@Schema(title = "처리 에러 정보") TrtErrInfoDTO trtErrInfoDTO,
 		@Schema(title = "응답 데이터") T data) {
 
+	// TODO: TrtBaseInfo 제거
 	public static <T> ResponseStdVO<T> success(TrtErrInfoDTO trtErrInfoDTO, T data) {
 		return new ResponseStdVO<T>(
 				trtErrInfoDTO,
 				data);
 	}
 
-	public static ResponseStdVO<Void> businessError(TrtErrInfoDTO trtErrInfoDTO) {
+		public static ResponseStdVO<Void> businessError(TrtErrInfoDTO trtErrInfoDTO) {
 		return new ResponseStdVO<Void>(
 				trtErrInfoDTO,
 				null);
