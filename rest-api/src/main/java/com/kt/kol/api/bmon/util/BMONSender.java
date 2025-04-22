@@ -94,10 +94,10 @@ public class BMONSender {
 
 				//T인경우 DTO만, R인경우 VO로 처리한다.
 				if("T".equals(TrFlag)) {
+					bodyString = objMapper.writerWithDefaultPrettyPrinter().writeValueAsString(inDTO);
+				} else {
 					RequestStdVO<T> reqVO = new RequestStdVO<T>(trtErrInfoDTO, inDTO);
 					bodyString = objMapper.writerWithDefaultPrettyPrinter().writeValueAsString(reqVO);
-				} else {
-					bodyString = objMapper.writerWithDefaultPrettyPrinter().writeValueAsString(inDTO);
 				}
 			} catch (JsonProcessingException e) {
 				//BMON연동은 오류 처리 없음.
