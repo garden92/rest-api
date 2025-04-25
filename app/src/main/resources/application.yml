@@ -13,9 +13,14 @@ server:
 # spring boot - actuator expose
 management:
   endpoints:
+    health:
+      show-details: always
     web:
       exposure:
         include: health, loggers, prometheus
+  endpoint:
+    health:
+      show-details: always
 
 ---
 # Profile - local
@@ -63,6 +68,13 @@ e2e:
     path: /config/bmon/dev
 gw.itg.url: http://kol-itg-gw
 
+management:
+  health:
+    r2dbc:
+      enabled: false
+    db:
+      enabled: false
+
 ---
 # Profile - sit
 spring:
@@ -70,7 +82,7 @@ spring:
     activate:
       on-profile: sit
   r2dbc:
-    url: r2dbc:postgresql://pgdb-az01-dev-kol-02.postgres.database.azure.com:5432/devkol?sslmode=require&channelBinding=disable
+    url: r2dbc:postgresql://pgdb-az01-dev-kol-02.postgres.database.azure.com:5432/sitkol?sslmode=require&channelBinding=disable
     username: kolapp
     password: ${DB_PWD}
 logging:
@@ -82,6 +94,13 @@ e2e:
   properties:
     path: /config/bmon/sit
 gw.itg.url: http://kol-itg-gw
+
+management:
+  health:
+    r2dbc:
+      enabled: false
+    db:
+      enabled: false
 
 ---
 # Profile - prd

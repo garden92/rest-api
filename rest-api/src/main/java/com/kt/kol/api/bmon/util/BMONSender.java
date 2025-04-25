@@ -89,10 +89,16 @@ public class BMONSender {
 	
 			//body key/value로 변환
 			String bodyString = "";
-			RequestStdVO<T> reqVO = new RequestStdVO<T>(trtErrInfoDTO, inDTO);
 			try {
 				ObjectMapper objMapper = new ObjectMapper();
-				bodyString = objMapper.writerWithDefaultPrettyPrinter().writeValueAsString(reqVO);
+
+				//T인경우 DTO만, R인경우 VO로 처리한다.
+				if("T".equals(TrFlag)) {
+					bodyString = objMapper.writerWithDefaultPrettyPrinter().writeValueAsString(inDTO);
+				} else {
+					RequestStdVO<T> reqVO = new RequestStdVO<T>(trtErrInfoDTO, inDTO);
+					bodyString = objMapper.writerWithDefaultPrettyPrinter().writeValueAsString(reqVO);
+				}
 			} catch (JsonProcessingException e) {
 				//BMON연동은 오류 처리 없음.
 				log.error("BMON 메세지변환 오류 발생>{}", e.toString());
