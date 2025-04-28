@@ -49,7 +49,7 @@ public class BMONSender {
 			//local 환경에서는 bmon연동 안함
 			if("local".equals(onProfile)) {
 				log.debug("{}", "BMON Local Skip!");
-				//return;
+				return;
 			}
 	
 			//bmon flag 처리
@@ -115,7 +115,7 @@ public class BMONSender {
 			ObjectMapper objMapper = new ObjectMapper();
 			String objMapperStr = "";
 			try{
-				if("R".equals(TrFlag)) {
+				if("T".equals(TrFlag)) {
 					objMapperStr = objMapper.writerWithDefaultPrettyPrinter().writeValueAsString(inDTO);
 				} else {
 					RequestStdVO<T> reqVO = new RequestStdVO<T>(trtErrInfoDTO, inDTO);
