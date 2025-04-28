@@ -145,7 +145,9 @@ public class BMONSender {
 			String key = keys.next();
 			Object value = inJsonObj.get(key);
 
-			String currKey = prefix.isEmpty() ? key : prefix + "." + key;
+			//String currKey = prefix.isEmpty() ? key : prefix + "." + key;
+			String currKey = key;
+
 
 			if(value instanceof JSONObject) {
 				result.append(jsonToKeyValue((JSONObject) value, currKey));
