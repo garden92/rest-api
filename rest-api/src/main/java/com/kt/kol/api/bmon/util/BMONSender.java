@@ -49,7 +49,7 @@ public class BMONSender {
 			//local 환경에서는 bmon연동 안함
 			if("local".equals(onProfile)) {
 				log.debug("{}", "BMON Local Skip!");
-				//return;
+				return;
 			}
 	
 			//bmon flag 처리
