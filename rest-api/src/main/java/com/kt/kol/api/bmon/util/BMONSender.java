@@ -90,8 +90,8 @@ public class BMONSender {
 								.append(this.LINE_FEED);
 			}
 	
-			
-			//2025.04.28 json전문 연동은 bmon에서 마스킹 불가. Key:Value 형식으로 변경
+			/*
+			2025.04.28 json전문 연동은 bmon에서 마스킹 불가. Key:Value 형식으로 변경
 			//body json String 변환
 			String bodyString = "";
 			try {
@@ -108,9 +108,8 @@ public class BMONSender {
 				//BMON연동은 오류 처리 없음.
 				log.error("BMON 메세지변환 오류 발생>{}", e.toString());
 			}
+			*/
 			
-			
-			/*
 			//body json Key:Value형태 문자열로 변환
 			String bodyString;
 			ObjectMapper objMapper = new ObjectMapper();
@@ -127,7 +126,6 @@ public class BMONSender {
 			}
 
 			bodyString = jsonToKeyValue(new JSONObject(objMapperStr), "");
-			*/
 			
 			log.debug("BMON 연동 시작. 입력헤더=[{}]", headerStrBulder.toString());
 			log.debug("BMON 연동 시작. 입력전문=[{}]", bodyString);
