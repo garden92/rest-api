@@ -145,8 +145,9 @@ public class BMONSender {
 			String key = keys.next();
 			Object value = inJsonObj.get(key);
 
-			String currKey = prefix.isEmpty() ? key : prefix + "." + key;
-			//String currKey = key;
+			//레벨구조로 찍으면 마스킹 처리 안됨...
+			//String currKey = prefix.isEmpty() ? key : prefix + "." + key;
+			String currKey = key;
 
 
 			if(value instanceof JSONObject) {
