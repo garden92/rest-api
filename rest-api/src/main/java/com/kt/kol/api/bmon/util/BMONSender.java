@@ -49,7 +49,7 @@ public class BMONSender {
 			//local 환경에서는 bmon연동 안함
 			if("local".equals(onProfile)) {
 				log.debug("{}", "BMON Local Skip!");
-				return;
+				//return;
 			}
 	
 			//bmon flag 처리
@@ -90,8 +90,8 @@ public class BMONSender {
 								.append(this.LINE_FEED);
 			}
 	
-			/*
-			2025.04.28 json전문 연동은 bmon에서 마스킹 불가. Key:Value 형식으로 변경
+			
+			//2025.04.28 json전문 연동은 bmon에서 마스킹 불가. Key:Value 형식으로 변경
 			//body json String 변환
 			String bodyString = "";
 			try {
@@ -108,14 +108,15 @@ public class BMONSender {
 				//BMON연동은 오류 처리 없음.
 				log.error("BMON 메세지변환 오류 발생>{}", e.toString());
 			}
-			*/
 			
+			
+			/*
 			//body json Key:Value형태 문자열로 변환
 			String bodyString;
 			ObjectMapper objMapper = new ObjectMapper();
 			String objMapperStr = "";
 			try{
-				if("T".equals(TrFlag)) {
+				if("R".equals(TrFlag)) {
 					objMapperStr = objMapper.writerWithDefaultPrettyPrinter().writeValueAsString(inDTO);
 				} else {
 					RequestStdVO<T> reqVO = new RequestStdVO<T>(trtErrInfoDTO, inDTO);
@@ -126,6 +127,7 @@ public class BMONSender {
 			}
 
 			bodyString = jsonToKeyValue(new JSONObject(objMapperStr), "");
+			*/
 			
 			log.debug("BMON 연동 시작. 입력헤더=[{}]", headerStrBulder.toString());
 			log.debug("BMON 연동 시작. 입력전문=[{}]", bodyString);
@@ -149,10 +151,17 @@ public class BMONSender {
 			//String currKey = prefix.isEmpty() ? key : prefix + "." + key;
 			String currKey = key;
 
-
 			if(value instanceof JSONObject) {
+				result.append(currKey)
+						.append(":")
+						.append("")
+						.append("\n");
 				result.append(jsonToKeyValue((JSONObject) value, currKey));
 			} else if(value instanceof JSONArray){
+				result.append(currKey)
+						.append(":")
+						.append("")
+						.append("\n");
 				result.append(processJsonArray((JSONArray) value, currKey));
 			} else {
 				result.append(currKey)
@@ -175,8 +184,16 @@ public class BMONSender {
 			String currKey = prefix + "[" + i + "]";
 
 			if(item instanceof JSONObject) {
+				result.append(currKey)
+						.append(":")
+						.append("")
+						.append("\n");
 				result.append(jsonToKeyValue((JSONObject) item, currKey));
 			} else if(item instanceof JSONArray) {
+				result.append(currKey)
+						.append(":")
+						.append("")
+						.append("\n");
 				result.append(processJsonArray((JSONArray) item, currKey));
 			} else {
 				result.append(currKey)
