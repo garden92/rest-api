@@ -145,8 +145,8 @@ public class BMONSender {
 			String key = keys.next();
 			Object value = inJsonObj.get(key);
 
-			//String currKey = prefix.isEmpty() ? key : prefix + "." + key;
-			String currKey = key;
+			String currKey = prefix.isEmpty() ? key : prefix + "." + key;
+			//String currKey = key;
 
 
 			if(value instanceof JSONObject) {
@@ -164,6 +164,7 @@ public class BMONSender {
 		return result.toString();
 	}
 
+	//JSONArray to key:Value
 	public static String processJsonArray(JSONArray jsonArray, String prefix) {
 
 		StringBuilder result = new StringBuilder();
