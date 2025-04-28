@@ -112,23 +112,20 @@ public class BMONSender {
 			
 			//body json Key:Value형태 문자열로 변환
 			String bodyString;
-
-			if("T".equals(TrFlag)) {
-				ObjectMapper objMapper = new ObjectMapper();
-				String a = "";
-				try{
-				a = objMapper.writerWithDefaultPrettyPrinter().writeValueAsString(inDTO);
-				}catch(Exception e){
-
+			ObjectMapper objMapper = new ObjectMapper();
+			String objMapperStr = "";
+			try{
+				if("T".equals(TrFlag)) {
+					objMapperStr = objMapper.writerWithDefaultPrettyPrinter().writeValueAsString(inDTO);
+				} else {
+					RequestStdVO<T> reqVO = new RequestStdVO<T>(trtErrInfoDTO, inDTO);
+					objMapperStr = objMapper.writerWithDefaultPrettyPrinter().writeValueAsString(reqVO);
 				}
+			}catch(Exception e){
 
-
-				bodyString = jsonToKeyValue(new JSONObject(a), "");
-			} else {
-				RequestStdVO<T> reqVO = new RequestStdVO<T>(trtErrInfoDTO, inDTO);
-				bodyString = jsonToKeyValue(new JSONObject(reqVO), "");
 			}
 
+			bodyString = jsonToKeyValue(new JSONObject(objMapperStr), "");
 			
 			log.debug("BMON 연동 시작. 입력헤더=[{}]", headerStrBulder.toString());
 			log.debug("BMON 연동 시작. 입력전문=[{}]", bodyString);
