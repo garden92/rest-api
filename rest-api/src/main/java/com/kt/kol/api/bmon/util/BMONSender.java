@@ -2,6 +2,7 @@ package com.kt.kol.api.bmon.util;
 
 import java.util.Iterator;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -48,7 +49,7 @@ public class BMONSender {
 			//local 환경에서는 bmon연동 안함
 			if("local".equals(onProfile)) {
 				log.debug("{}", "BMON Local Skip!");
-				return;
+				//return;
 			}
 	
 			//bmon flag 처리
@@ -111,8 +112,18 @@ public class BMONSender {
 			
 			//body json Key:Value형태 문자열로 변환
 			String bodyString;
+
 			if("T".equals(TrFlag)) {
-				bodyString = jsonToKeyValue(new JSONObject(inDTO), "");
+				ObjectMapper objMapper = new ObjectMapper();
+				String a = "";
+				try{
+				a = objMapper.writerWithDefaultPrettyPrinter().writeValueAsString(inDTO);
+				}catch(Exception e){
+
+				}
+
+
+				bodyString = jsonToKeyValue(new JSONObject(a), "");
 			} else {
 				RequestStdVO<T> reqVO = new RequestStdVO<T>(trtErrInfoDTO, inDTO);
 				bodyString = jsonToKeyValue(new JSONObject(reqVO), "");
@@ -141,12 +152,38 @@ public class BMONSender {
 
 			if(value instanceof JSONObject) {
 				result.append(jsonToKeyValue((JSONObject) value, currKey));
+			} else if(value instanceof JSONArray){
+				result.append(processJsonArray((JSONArray) value, currKey));
 			} else {
 				result.append(currKey)
 						.append(":")
 						.append(value)
 						.append("\n");
 			}
+		}
+
+		return result.toString();
+	}
+
+	public static String processJsonArray(JSONArray jsonArray, String prefix) {
+
+		StringBuilder result = new StringBuilder();
+
+		for(int i=0; i < jsonArray.length(); i++) {
+			Object item = jsonArray.get(i);
+			String currKey = prefix + "[" + i + "]";
+
+			if(item instanceof JSONObject) {
+				result.append(jsonToKeyValue((JSONObject) item, currKey));
+			} else if(item instanceof JSONArray) {
+				result.append(processJsonArray((JSONArray) item, currKey));
+			} else {
+				result.append(currKey)
+						.append(":")
+						.append(item)
+						.append("\n");
+			}
+
 		}
 
 		return result.toString();
