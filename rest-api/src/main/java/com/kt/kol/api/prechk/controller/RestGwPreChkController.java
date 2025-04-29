@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.kt.kol.api.prechk.model.DummyDTO;
 import com.kt.kol.api.prechk.service.RestGwPreChkService;
-import com.kt.kol.common.model.RequestStdVO;
 import com.kt.kol.common.model.ResponseStdVO;
 
 import io.swagger.v3.oas.annotations.Operation;

@@ -7,7 +7,6 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kt.icis.cmmnfrwk.monitoring.api.CommonPayloadCollector;
 import com.kt.kol.common.model.RequestStdVO;
