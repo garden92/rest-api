@@ -19,7 +19,6 @@ public class RestGwRouteService {
     private final RestGwRouteRepository restGwRouteRepository;
     
     public Mono<List<Map<String, Object>>> retrieveRouteInfo() {		
-		
         return restGwRouteRepository.retrieveRouteInfo();
 	}
 }
