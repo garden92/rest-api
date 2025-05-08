@@ -14,5 +14,5 @@ public final class HeaderConstants {
 	public static String HEADER_TR_FLAG = "KOL-Tr-Flag";
 	public static String HEADER_ORI_URI = "KOL-Ori-URI";	//최초 URI 보관
 	public static String HEADER_ORI_IP = "KOL-Ori-IP";		//최초 RemoteAddr 보관
-	public static String HEADER_API_KEY = "KOL-Api-Key";
+	public static String HEADER_AUTH_KEY = "Authorization";
 }

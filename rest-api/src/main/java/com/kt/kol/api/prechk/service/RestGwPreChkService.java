@@ -55,10 +55,22 @@ public class RestGwPreChkService {
 					Mono<List<KolChUserInfoDTO>> userChkList = kolChUserInfoRepository.checkKolChUserInfo(request.getHeader(HeaderConstants.HEADER_CHNL_TYPE)
 																											, request.getHeader(HeaderConstants.HEADER_USER_ID)).collectList();
 					//API Key 체크
+					//Authrization 값 추출
+					String hApiKey = request.getHeader(HeaderConstants.HEADER_AUTH_KEY);
+					if(StringUtil.isNull(request.getHeader(HeaderConstants.HEADER_AUTH_KEY))) {	//입력여부 체크
+						log.debug("API Key가 입력되지 않았습니다.");
+						return errorBmonSend("API Key가 입력되지 않았습니다.", request);
+					} else if(hApiKey.indexOf("Bearer ") < 0) {	//Bearer Type 체크
+						log.debug("API Key유형이 Bearer Type이 아닙니다.");
+						return errorBmonSend("API Key유형이 Bearer Type이 아닙니다.", request);
+					} else {
+						hApiKey = hApiKey.substring(7) ;	//API Key 추출
+					}
+
 					Mono<List<ApiKeyInfoInfoDTO>> apiKeyChkList = apiKeyInfoRepository.checkApiKeyInfo(request.getHeader(HeaderConstants.HEADER_CHNL_TYPE)
 																										, request.getHeader(HeaderConstants.HEADER_ORI_URI)
 																										, request.getHeader(HeaderConstants.HEADER_LG_DATE_TIME)
-																										, request.getHeader(HeaderConstants.HEADER_API_KEY)).collectList();
+																										, hApiKey).collectList();
 
 					//병렬 체크 로직 수행
 					return Mono.zip(chChkList, ipChkList, userChkList, apiKeyChkList)
@@ -108,11 +120,6 @@ public class RestGwPreChkService {
 								}
 
 								//4. API Key 체크
-								if(StringUtil.isNull(request.getHeader(HeaderConstants.HEADER_API_KEY))) {
-									log.debug("API Key가 입력되지 않았습니다.");
-									return errorBmonSend("API Key가 입력되지 않았습니다.", request);
-								}
-
 								List<ApiKeyInfoInfoDTO> apiKeyChkListRtn = dbRslt.getT4();
 								if(apiKeyChkListRtn.size() <= 0 || StringUtil.isNull(apiKeyChkListRtn.get(0).chId())) {
 									log.debug("API Key 인증에 실패 하였습니다.");
