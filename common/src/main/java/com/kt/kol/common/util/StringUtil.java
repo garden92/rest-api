@@ -7,6 +7,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+import java.lang.SuppressWarnings;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -23,6 +24,7 @@ public class StringUtil {
 	 * @param Object
 	 * @return N/A
 	 */
+	@SuppressWarnings("rawtypes")
 	public static String toString(Object obj) {
 		
 		ObjectMapper mapper = new ObjectMapper();
