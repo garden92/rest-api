@@ -9,5 +9,9 @@ public record ApiKeyInfoInfoDTO (
 	/**
 	 * 사용자아이디
 	 */
-	String rqtSvcNm
+	String rqtSvcNm,
+	/**
+	 * API 키 값
+	 */
+	String apiKeyVal
 ) {}

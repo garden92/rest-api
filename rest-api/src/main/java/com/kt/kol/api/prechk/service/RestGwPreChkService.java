@@ -55,22 +55,9 @@ public class RestGwPreChkService {
 					Mono<List<KolChUserInfoDTO>> userChkList = kolChUserInfoRepository.checkKolChUserInfo(request.getHeader(HeaderConstants.HEADER_CHNL_TYPE)
 																											, request.getHeader(HeaderConstants.HEADER_USER_ID)).collectList();
 					//API Key 체크
-					//Authrization 값 추출
-					String hApiKey = request.getHeader(HeaderConstants.HEADER_AUTH_KEY);
-					if(StringUtil.isNull(request.getHeader(HeaderConstants.HEADER_AUTH_KEY))) {	//입력여부 체크
-						log.debug("API Key가 입력되지 않았습니다.");
-						return errorBmonSend("API Key가 입력되지 않았습니다.", request);
-					} else if(hApiKey.indexOf("Bearer ") < 0) {	//Bearer Type 체크
-						log.debug("API Key유형이 Bearer Type이 아닙니다.");
-						return errorBmonSend("API Key유형이 Bearer Type이 아닙니다.", request);
-					} else {
-						hApiKey = hApiKey.substring(7) ;	//API Key 추출
-					}
-
 					Mono<List<ApiKeyInfoInfoDTO>> apiKeyChkList = apiKeyInfoRepository.checkApiKeyInfo(request.getHeader(HeaderConstants.HEADER_CHNL_TYPE)
 																										, request.getHeader(HeaderConstants.HEADER_ORI_URI)
-																										, request.getHeader(HeaderConstants.HEADER_LG_DATE_TIME)
-																										, hApiKey).collectList();
+																										, request.getHeader(HeaderConstants.HEADER_LG_DATE_TIME)).collectList();
 
 					//병렬 체크 로직 수행
 					return Mono.zip(chChkList, ipChkList, userChkList, apiKeyChkList)
@@ -85,14 +72,14 @@ public class RestGwPreChkService {
 								 */
 								TrtErrInfoDTO err = new TrtErrInfoDTO("I", "", "", "");
 								
-								//1-1. 채널ID 체크
+								/* 1-1. 채널ID 체크 */
 								List<KolChInfoDTO> chChkListRtn = dbRslt.getT1();
 								if(chChkListRtn.size() <= 0 || StringUtil.isNull(chChkListRtn.get(0).chId())) {
 									log.debug("허용 되지 않는 ChnlType 입니다. = [{}]", request.getHeader(HeaderConstants.HEADER_CHNL_TYPE));
 									return errorBmonSend("허용 되지 않는 ChnlType 입니다.", request);
 								} 
 
-								//1-2. 채널path 체크
+								/* 1-2. 채널path 체크 */
 								boolean pathRslt = false;
 								for(int i=0; i < chChkListRtn.size(); i++) {
 									if(request.getHeader(HeaderConstants.HEADER_ORI_URI).startsWith(chChkListRtn.get(i).chPathAdr())) {
@@ -105,25 +92,46 @@ public class RestGwPreChkService {
 									return errorBmonSend("허용 되지 않는 서비스URL 입니다.", request);
 								}
 								
-								//2. 채널IP 체크
+								/* 2. 채널IP 체크 */
 								List<KolChIpInfoDTO> chIpChkListRtn = dbRslt.getT2();
 								if(chIpChkListRtn.size() <= 0 || StringUtil.isNull(chIpChkListRtn.get(0).chId())) {
 									log.debug("허용 되지 않는 IP 입니다. = [{}]", request.getRemoteAddr());
 									return errorBmonSend("허용 되지 않는 IP 입니다.", request);
 								}
 								
-								//3. 채널사용자 체크
+								/*3. 채널사용자 체크 */
 								List<KolChUserInfoDTO> chUserChkListRtn = dbRslt.getT3();
 								if(chUserChkListRtn.size() <= 0 || StringUtil.isNull(chUserChkListRtn.get(0).chId())) {
 									log.debug("허용 되지 않는 사용자ID 입니다. = [{}]", request.getHeader(HeaderConstants.HEADER_USER_ID));
 									return errorBmonSend("허용 되지 않는 사용자ID 입니다.", request); 
 								}
 
-								//4. API Key 체크
+								/* 4. API Key 체크 */
 								List<ApiKeyInfoInfoDTO> apiKeyChkListRtn = dbRslt.getT4();
 								if(apiKeyChkListRtn.size() <= 0 || StringUtil.isNull(apiKeyChkListRtn.get(0).chId())) {
-									log.debug("API Key 인증에 실패 하였습니다.");
-									return errorBmonSend("API Key 인증에 실패 하였습니다.", request); 
+									log.debug("API Key 조회 결과 없음.");
+									return errorBmonSend("API Key 조회 결과 없음. 시스템 관리자에게 문의 하세요.", request);
+								}
+								
+								// DB에 *(ALL) 로 등록되어있는경우에는 체크 SKIP
+								String hApiKey = request.getHeader(HeaderConstants.HEADER_AUTH_KEY);
+								if ("*".equals(apiKeyChkListRtn.get(0).apiKeyVal())) {
+									log.debug("API Key 전체 허용 서비스로 인증 SKIP!");
+								} else {
+									if(StringUtil.isNull(hApiKey)) {	//입력여부 체크
+										log.debug("API Key가 입력되지 않았습니다.");
+										return errorBmonSend("API Key가 입력되지 않았습니다.", request);
+									} else if(hApiKey.indexOf("Bearer ") < 0) {	//Bearer Type 체크
+										log.debug("API Key유형이 Bearer Type이 아닙니다.");
+										return errorBmonSend("API Key유형이 Bearer Type이 아닙니다.", request);
+									} else {
+										hApiKey = hApiKey.substring(7);
+
+										if(!hApiKey.equals(apiKeyChkListRtn.get(0).apiKeyVal())) {
+											log.debug("API Key 인증에 실패 하였습니다.");
+											return errorBmonSend("API Key 인증에 실패 하였습니다.", request); 
+										}
+									}
 								}
 
 								return Mono.just(new ResponseStdVO<DummyDTO>(err, new DummyDTO()));

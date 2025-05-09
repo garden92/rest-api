@@ -13,12 +13,12 @@ public interface ApiKeyInfoRepository extends ReactiveCrudRepository<ApiKeyInfoI
 
 	@Query("""
 	  select ch_id,
-			 rqt_svc_nm
+			 rqt_svc_nm,
+			 api_key_val
 		from kolown.api_key_info_bas
 	   where ch_id = :chId
 		 and rqt_svc_nm  = :rqtSvcNm
 		 and to_timestamp(:lgDateTime, 'yyyymmddhh24miss') between efct_st_dt and efct_fns_dt
-		 and api_key_val = :apKeyVal
 			""")
-	Flux<ApiKeyInfoInfoDTO> checkApiKeyInfo(String chId, String rqtSvcNm, String lgDateTime, String apKeyVal);
+	Flux<ApiKeyInfoInfoDTO> checkApiKeyInfo(String chId, String rqtSvcNm, String lgDateTime);
 }
