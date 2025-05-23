@@ -49,7 +49,7 @@ public class RestGwPreChkService {
 															
 					//허용IP 체크
 					Mono<List<KolChIpInfoDTO>> ipChkList = kolChIpInfoRepository.checkKolChIpInfo(request.getHeader(HeaderConstants.HEADER_CHNL_TYPE)
-																									, request.getRemoteAddr()).collectList();
+																									, request.getHeader(HeaderConstants.HEADER_ORI_IP)).collectList();
 															
 					//허용사용자 체크
 					Mono<List<KolChUserInfoDTO>> userChkList = kolChUserInfoRepository.checkKolChUserInfo(request.getHeader(HeaderConstants.HEADER_CHNL_TYPE)
@@ -57,7 +57,8 @@ public class RestGwPreChkService {
 					//API Key 체크
 					Mono<List<ApiKeyInfoInfoDTO>> apiKeyChkList = apiKeyInfoRepository.checkApiKeyInfo(request.getHeader(HeaderConstants.HEADER_CHNL_TYPE)
 																										, request.getHeader(HeaderConstants.HEADER_ORI_URI)
-																										, request.getHeader(HeaderConstants.HEADER_LG_DATE_TIME)).collectList();
+																										, request.getHeader(HeaderConstants.HEADER_LG_DATE_TIME)
+																										, request.getHeader(HeaderConstants.HEADER_ORI_IP)).collectList();
 
 					//병렬 체크 로직 수행
 					return Mono.zip(chChkList, ipChkList, userChkList, apiKeyChkList)
