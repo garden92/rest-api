@@ -12,9 +12,9 @@ import reactor.core.publisher.Flux;
 public interface ApiKeyInfoRepository extends ReactiveCrudRepository<ApiKeyInfoInfoDTO, String>{
 
 	@Query("""
-	  select :chId,
-			:rqtSvcNm,
-			'*'
+	  select :chId as ch_id,
+			:rqtSvcNm as rqt_svc_nm,
+			'*' as api_key_val
 		from kolown.kol_cd_bas
 		where kol_cd_group_id  = 'API_KEY_SKIP_IP'
 		and kol_cd_id  = :ip
