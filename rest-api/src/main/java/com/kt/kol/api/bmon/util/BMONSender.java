@@ -1,10 +1,12 @@
 package com.kt.kol.api.bmon.util;
 
+import java.util.Iterator;
+
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kt.icis.cmmnfrwk.monitoring.api.CommonPayloadCollector;
 import com.kt.kol.common.model.RequestStdVO;
@@ -87,7 +89,9 @@ public class BMONSender {
 								.append(this.LINE_FEED);
 			}
 	
-			//body key/value로 변환
+			/*
+			2025.04.28 json전문 연동은 bmon에서 마스킹 불가. Key:Value 형식으로 변경
+			//body json String 변환
 			String bodyString = "";
 			try {
 				ObjectMapper objMapper = new ObjectMapper();
@@ -103,6 +107,24 @@ public class BMONSender {
 				//BMON연동은 오류 처리 없음.
 				log.error("BMON 메세지변환 오류 발생>{}", e.toString());
 			}
+			*/
+			
+			//body json Key:Value형태 문자열로 변환
+			String bodyString;
+			ObjectMapper objMapper = new ObjectMapper();
+			String objMapperStr = "";
+			try{
+				if("T".equals(TrFlag)) {
+					objMapperStr = objMapper.writerWithDefaultPrettyPrinter().writeValueAsString(inDTO);
+				} else {
+					RequestStdVO<T> reqVO = new RequestStdVO<T>(trtErrInfoDTO, inDTO);
+					objMapperStr = objMapper.writerWithDefaultPrettyPrinter().writeValueAsString(reqVO);
+				}
+			}catch(Exception e){
+
+			}
+
+			bodyString = jsonToKeyValue(new JSONObject(objMapperStr), "");
 			
 			log.debug("BMON 연동 시작. 입력헤더=[{}]", headerStrBulder.toString());
 			log.debug("BMON 연동 시작. 입력전문=[{}]", bodyString);
@@ -110,5 +132,75 @@ public class BMONSender {
 			CommonPayloadCollector.sendPayloadKeyValue(Constants.LOG_POINT, headerStrBulder.toString(), bodyString);
 			
 		}).subscribeOn(Schedulers.boundedElastic()).then();
+	}
+
+	//JSONObject to Key:Value
+	public static String jsonToKeyValue(JSONObject inJsonObj, String prefix) {
+
+		StringBuilder result = new StringBuilder();
+		Iterator<String> keys = inJsonObj.keys();
+
+		while(keys.hasNext()) {
+			String key = keys.next();
+			Object value = inJsonObj.get(key);
+
+			//레벨구조로 찍으면 마스킹 처리 안됨...
+			//String currKey = prefix.isEmpty() ? key : prefix + "." + key;
+			String currKey = key;
+
+			if(value instanceof JSONObject) {
+				result.append(currKey)
+						.append(":")
+						.append("")
+						.append("\n");
+				result.append(jsonToKeyValue((JSONObject) value, currKey));
+			} else if(value instanceof JSONArray){
+				result.append(currKey)
+						.append(":")
+						.append("")
+						.append("\n");
+				result.append(processJsonArray((JSONArray) value, currKey));
+			} else {
+				result.append(currKey)
+						.append(":")
+						.append(value)
+						.append("\n");
+			}
+		}
+
+		return result.toString();
+	}
+
+	//JSONArray to key:Value
+	public static String processJsonArray(JSONArray jsonArray, String prefix) {
+
+		StringBuilder result = new StringBuilder();
+
+		for(int i=0; i < jsonArray.length(); i++) {
+			Object item = jsonArray.get(i);
+			String currKey = prefix + "[" + i + "]";
+
+			if(item instanceof JSONObject) {
+				result.append(currKey)
+						.append(":")
+						.append("")
+						.append("\n");
+				result.append(jsonToKeyValue((JSONObject) item, currKey));
+			} else if(item instanceof JSONArray) {
+				result.append(currKey)
+						.append(":")
+						.append("")
+						.append("\n");
+				result.append(processJsonArray((JSONArray) item, currKey));
+			} else {
+				result.append(currKey)
+						.append(":")
+						.append(item)
+						.append("\n");
+			}
+
+		}
+
+		return result.toString();
 	}
 }

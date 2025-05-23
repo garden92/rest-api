@@ -11,7 +11,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableFeignClients(basePackages = { "com.kt.kol" })
 @ComponentScan(basePackages = { "com.kt.kol" })
 @EnableScheduling
-@EnableR2dbcRepositories(basePackages = "com.kt.kol.api.prechk.repository")
+@EnableR2dbcRepositories(basePackages = "com.kt.kol.api.**.repository")
 public class Application {
 
 	public static void main(String[] args) {

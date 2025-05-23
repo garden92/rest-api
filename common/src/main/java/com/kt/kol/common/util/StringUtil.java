@@ -23,6 +23,7 @@ public class StringUtil {
 	 * @param Object
 	 * @return N/A
 	 */
+	@SuppressWarnings("rawtypes")
 	public static String toString(Object obj) {
 		
 		ObjectMapper mapper = new ObjectMapper();

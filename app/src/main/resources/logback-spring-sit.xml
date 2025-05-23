@@ -67,6 +67,13 @@
         <appender-ref ref="STDOUT" />
     </logger>
 
+    <logger name="org.springframework.r2dbc" level="ERROR" additivity="false">
+        <appender-ref ref="STDOUT" />
+    </logger>
+    <logger name="io.r2dbc.postgresql.PARAM" level="ERROR" additivity="false">
+        <appender-ref ref="STDOUT"/>
+    </logger>
+
     <!-- connection pool -->
     <logger name="com.zaxxer.hikari" level="INFO" additivity="false">
         <appender-ref ref="STDOUT"/>
