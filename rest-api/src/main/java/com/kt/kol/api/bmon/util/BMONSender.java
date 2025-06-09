@@ -42,8 +42,10 @@ public class BMONSender {
 	 * @throws KolBusinessException 
 	 */
 	public <T> Mono<Void> sendBmonMot(String TrFlag, T inDTO, TrtErrInfoDTO trtErrInfoDTO, HttpServletRequest request) {
-		
+
 		return Mono.fromRunnable(() -> {
+
+			log.debug("TrFlag>>>>{} \n inDTO>>>>>>>>>> {}", TrFlag, inDTO.toString());
 			
 			//local 환경에서는 bmon연동 안함
 			if("local".equals(onProfile)) {
