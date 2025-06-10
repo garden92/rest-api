@@ -133,12 +133,10 @@ public class BMONSender {
 				}catch(Exception e){}
 
 				bodyString = jsonToKeyValue(new JSONObject(objMapperStr), "");
-				
-				log.debug("BMON 연동 시작. 입력전문=[{}]", bodyString);
-			} else {
-				log.debug("BMON 연동 시작. 입력전문=[{}]", bodyString);
 			}
 
+			log.debug("BMON 연동 시작. 입력전문=[{}]", bodyString);
+			
 			CommonPayloadCollector.sendPayloadKeyValue(Constants.LOG_POINT, headerStrBulder.toString(), bodyString);
 			
 		}).subscribeOn(Schedulers.boundedElastic()).then();
