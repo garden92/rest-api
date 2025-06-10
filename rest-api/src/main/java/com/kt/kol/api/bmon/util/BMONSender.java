@@ -109,7 +109,7 @@ public class BMONSender {
 					bodyString = objMapper.writerWithDefaultPrettyPrinter().writeValueAsString(reqVO);
 				}
 			} catch (JsonProcessingException e) {
-				//BMON연동은 오류 처리 없음.
+				//BMON연동은 오류 처리 없음. 
 				log.error("BMON 메세지변환 오류 발생>{}", e.toString());
 			}
 			*/
@@ -131,7 +131,7 @@ public class BMONSender {
 						objMapperStr = objMapper.writerWithDefaultPrettyPrinter().writeValueAsString(reqVO);
 					}
 				}catch(Exception e){}
-				
+
 				bodyString = jsonToKeyValue(new JSONObject(objMapperStr), "");
 				
 				log.debug("BMON 연동 시작. 입력전문=[{}]", bodyString);
