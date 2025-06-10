@@ -16,7 +16,7 @@ public interface KolChUserInfoRepository extends ReactiveCrudRepository<KolChUse
 	         user_id
 	    from kolown.kol_ch_user_id_list_bas
 	   where ch_id = :chId
-	     and user_id = :userId or user_id = '*'
+	     and (user_id = :userId or user_id = '*')
 			""")
 	Flux<KolChUserInfoDTO> checkKolChUserInfo(String chId, String userId);
 }
