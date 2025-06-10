@@ -16,7 +16,7 @@ public interface KolChIpInfoRepository extends ReactiveCrudRepository<KolChIpInf
 	         ip_adr
 	    from kolown.kol_ch_ip_list_bas
 	   where ch_id = :chId
-	     and ip_adr = :ipAdr or ip_adr = '*'
+	     and (ip_adr = :ipAdr or ip_adr = '*')
 			""")
 	Flux<KolChIpInfoDTO> checkKolChIpInfo(String chId, String ipAdr);
 }
