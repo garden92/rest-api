@@ -15,6 +15,7 @@ public class BusinessException extends RuntimeException {
 	}
 
 	public BusinessException(TrtErrInfoDTO trtErrInfoDTO) {
+		super(HeaderUtil.getGlobalNo() + " || " + trtErrInfoDTO.responseBasc());
 		this.trtErrInfoDTO = trtErrInfoDTO;
 	}
 
