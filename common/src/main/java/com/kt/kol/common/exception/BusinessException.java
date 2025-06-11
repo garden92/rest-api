@@ -1,6 +1,7 @@
 package com.kt.kol.common.exception;
 
 import com.kt.kol.common.model.TrtErrInfoDTO;
+import com.kt.kol.common.util.HeaderUtil;
 
 public class BusinessException extends RuntimeException {
 
