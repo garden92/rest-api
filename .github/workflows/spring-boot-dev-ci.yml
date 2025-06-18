@@ -20,11 +20,10 @@ jobs:
       source_repository: kol-rest-api
       ops_repository: kol-ops
       environment: dev
-      ref: develop
+      ref: main
     secrets:
       ACTION_TOKEN: ${{ secrets.ACTION_TOKEN }}
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
-      NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
       NEXUS_URL: ${{ secrets.NEXUS_URL }}
       NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
 
