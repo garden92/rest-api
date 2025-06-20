@@ -42,9 +42,9 @@ public class BMONSender {
 	 * @throws KolBusinessException 
 	 */
 	public <T> Mono<Void> sendBmonMot(String TrFlag, T inDTO, TrtErrInfoDTO trtErrInfoDTO, HttpServletRequest request) {
-		
+
 		return Mono.fromRunnable(() -> {
-			
+
 			//local 환경에서는 bmon연동 안함
 			if("local".equals(onProfile)) {
 				log.debug("{}", "BMON Local Skip!");
@@ -57,6 +57,9 @@ public class BMONSender {
 				return; 
 			}
 			
+			/**
+			 * Header 처리
+			 */
 			JSONObject bmonHeader = new JSONObject();
 			bmonHeader.put("appName", Constants.APP_NAME);
 			bmonHeader.put("svcName", request.getHeader(HeaderConstants.HEADER_ORI_URI));
@@ -88,7 +91,9 @@ public class BMONSender {
 								.append(bmonHeader.get((String) key))
 								.append(this.LINE_FEED);
 			}
-	
+			
+			log.debug("BMON 연동 시작. 입력헤더=[{}]", headerStrBulder.toString());
+
 			/*
 			2025.04.28 json전문 연동은 bmon에서 마스킹 불가. Key:Value 형식으로 변경
 			//body json String 변환
@@ -104,31 +109,34 @@ public class BMONSender {
 					bodyString = objMapper.writerWithDefaultPrettyPrinter().writeValueAsString(reqVO);
 				}
 			} catch (JsonProcessingException e) {
-				//BMON연동은 오류 처리 없음.
+				//BMON연동은 오류 처리 없음. 
 				log.error("BMON 메세지변환 오류 발생>{}", e.toString());
 			}
 			*/
 			
-			//body json Key:Value형태 문자열로 변환
-			String bodyString;
-			ObjectMapper objMapper = new ObjectMapper();
-			String objMapperStr = "";
-			try{
-				if("T".equals(TrFlag)) {
-					objMapperStr = objMapper.writerWithDefaultPrettyPrinter().writeValueAsString(inDTO);
-				} else {
-					RequestStdVO<T> reqVO = new RequestStdVO<T>(trtErrInfoDTO, inDTO);
-					objMapperStr = objMapper.writerWithDefaultPrettyPrinter().writeValueAsString(reqVO);
-				}
-			}catch(Exception e){
+			/**
+			 * Body 처리
+			 * Exception이 발생한 경우, inDTO는 Null로 입력됨.
+			 */
+			String bodyString = "";
+			if(inDTO != null) {
+				//body json Key:Value형태 문자열로 변환
+				ObjectMapper objMapper = new ObjectMapper();
+				String objMapperStr = "";
+				try{
+					if("T".equals(TrFlag)) {
+						objMapperStr = objMapper.writerWithDefaultPrettyPrinter().writeValueAsString(inDTO);
+					} else {
+						RequestStdVO<T> reqVO = new RequestStdVO<T>(trtErrInfoDTO, inDTO);
+						objMapperStr = objMapper.writerWithDefaultPrettyPrinter().writeValueAsString(reqVO);
+					}
+				}catch(Exception e){}
 
+				bodyString = jsonToKeyValue(new JSONObject(objMapperStr), "");
 			}
 
-			bodyString = jsonToKeyValue(new JSONObject(objMapperStr), "");
-			
-			log.debug("BMON 연동 시작. 입력헤더=[{}]", headerStrBulder.toString());
 			log.debug("BMON 연동 시작. 입력전문=[{}]", bodyString);
-
+			
 			CommonPayloadCollector.sendPayloadKeyValue(Constants.LOG_POINT, headerStrBulder.toString(), bodyString);
 			
 		}).subscribeOn(Schedulers.boundedElastic()).then();

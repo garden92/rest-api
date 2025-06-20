@@ -1,6 +1,7 @@
 package com.kt.kol.common.exception;
 
 import com.kt.kol.common.model.TrtErrInfoDTO;
+import com.kt.kol.common.util.HeaderUtil;
 
 public class BusinessException extends RuntimeException {
 
@@ -15,6 +16,7 @@ public class BusinessException extends RuntimeException {
 	}
 
 	public BusinessException(TrtErrInfoDTO trtErrInfoDTO) {
+		super(HeaderUtil.getGlobalNo() + " || " + trtErrInfoDTO.responseBasc());
 		this.trtErrInfoDTO = trtErrInfoDTO;
 	}
 
