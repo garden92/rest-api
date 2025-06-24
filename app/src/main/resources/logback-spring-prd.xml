@@ -17,7 +17,7 @@
     </appender>
 
     <!-- application Logger -->
-    <logger name="com.kt" level="INFO" additivity="false">
+    <logger name="com.kt" level="ERROR" additivity="false">
         <appender-ref ref="STDOUT"/>
     </logger>
 
@@ -83,7 +83,7 @@
         <appender-ref ref="STDOUT" />
     </logger>
 
-    <logger name="org.postgresql" level="INFO" additivity="false">
+    <logger name="org.postgresql" level="ERROR" additivity="false">
         <appender-ref ref="STDOUT"/>
     </logger>
 
