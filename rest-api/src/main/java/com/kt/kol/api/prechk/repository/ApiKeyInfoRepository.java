@@ -12,20 +12,38 @@ import reactor.core.publisher.Flux;
 public interface ApiKeyInfoRepository extends ReactiveCrudRepository<ApiKeyInfoInfoDTO, String>{
 
 	@Query("""
-	  select :chId as ch_id,
+	  select :chId as ch_id,	-- 무조건 허용 IP 처리
 			:rqtSvcNm as rqt_svc_nm,
 			'*' as api_key_val
 		from kolown.kol_cd_bas
 		where kol_cd_group_id  = 'API_KEY_SKIP_IP'
 		and kol_cd_id  = :ip
 		union all
-		select ch_id,
+		select ch_id,			-- "*" 전체 허용 아닐때 처리
 			rqt_svc_nm,
 			api_key_val
 		from kolown.api_key_info_bas
 		where ch_id = :chId
 		and rqt_svc_nm  = :rqtSvcNm
 		and to_timestamp(:lgDateTime, 'yyyymmddhh24miss') between efct_st_dt and efct_fns_dt
+		and api_key_val != '*'
+		union all 
+		select ch_id,			-- "*" 전체 허용 처리 및 전체허용불가IP 처리
+			rqt_svc_nm,
+			case when 'Y' = (
+							select 'Y'
+							from kolown.kol_cd_bas
+							where kol_cd_group_id  = 'API_KEY_SKIP_EXCEPT_IP'
+							and kol_cd_id = :ip
+							)
+						then 'this IP cannot use all permissions' 
+			else api_key_val
+			end as api_key_val
+		from kolown.api_key_info_bas
+		where ch_id = :chId
+		and rqt_svc_nm  = :rqtSvcNm
+		and to_timestamp(:lgDateTime, 'yyyymmddhh24miss') between efct_st_dt and efct_fns_dt
+		and api_key_val = '*'
 			""")
 	Flux<ApiKeyInfoInfoDTO> checkApiKeyInfo(String chId, String rqtSvcNm, String lgDateTime, String ip);
 }
