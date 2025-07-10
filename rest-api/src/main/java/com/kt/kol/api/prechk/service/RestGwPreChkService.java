@@ -1,5 +1,8 @@
 package com.kt.kol.api.prechk.service;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -43,6 +46,14 @@ public class RestGwPreChkService {
 		return bmonSender.sendBmonMot("T", inDTO, new TrtErrInfoDTO("I", "", "", ""), request)
 				.then(Mono.defer(() -> {
 					
+					//유효성 체크크
+					DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+					try {
+						LocalDateTime.parse(request.getHeader(HeaderConstants.HEADER_LG_DATE_TIME), formatter);
+					} catch (DateTimeParseException e) {
+						return errorBmonSend("유효하지 않은 날짜 형식[KOL-Lg-Date-Time] 입니다.", request);
+					}
+
 					//채널ID 및 허용경로 체크
 					Mono<List<KolChInfoDTO>> chChkList = kolChInfoRepository.checkKolChInfo(request.getHeader(HeaderConstants.HEADER_CHNL_TYPE)
 																							, request.getHeader(HeaderConstants.HEADER_LG_DATE_TIME)).collectList();
