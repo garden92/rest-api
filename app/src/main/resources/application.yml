@@ -32,9 +32,9 @@ spring:
     restart:
       enabled: true
   r2dbc:
-    url: r2dbc:postgresql://10.241.127.68:5432/devkol
-    username: kolapp
-    #password: ${DB_PWD}
+    url: ${R2DBC_URL_DEV}
+    username: ${R2DBC_USER_NAME}
+    password: ${DB_PWD}
 server:
   port: 8003
 
@@ -55,8 +55,8 @@ spring:
     activate:
       on-profile: dev
   r2dbc:
-    url: r2dbc:postgresql://pgdb-az01-dev-kol-01.postgres.database.azure.com:5432/devkol?sslmode=require&channelBinding=disable
-    username: kolapp
+    url: ${R2DBC_URL_DEV}
+    username: ${R2DBC_USER_NAME}
     password: ${DB_PWD}
 logging:
   config: classpath:logback-spring-dev.xml
@@ -82,8 +82,8 @@ spring:
     activate:
       on-profile: sit
   r2dbc:
-    url: r2dbc:postgresql://pgdb-az01-dev-kol-02.postgres.database.azure.com:5432/sitkol?sslmode=require&channelBinding=disable
-    username: kolapp
+    url: ${R2DBC_URL_SIT}
+    username: ${R2DBC_USER_NAME}
     password: ${DB_PWD}
 logging:
   config: classpath:logback-spring-sit.xml
@@ -109,8 +109,8 @@ spring:
     activate:
       on-profile: prd
   r2dbc:
-    url: r2dbc:postgresql://pgdb-az01-prd-kol-01.postgres.database.azure.com:5432/prdkol?sslmode=require&channelBinding=disable
-    username: kolapp
+    url: ${R2DBC_URL_PRD}
+    username: ${R2DBC_USER_NAME}
     password: ${DB_PWD}
 logging:
   config: classpath:logback-spring-prd.xml
