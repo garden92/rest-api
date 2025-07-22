@@ -41,19 +41,15 @@ public class RestGwPreChkService {
     private final BMONSender bmonSender;
 
     // restGW 라우팅 전 사전체크
-    public <T> Mono<ResponseStdVO<DummyDTO>> ckeckBeforeRoute(T inDTO, ServerWebExchange exchange) {
+    public <T> Mono<ResponseStdVO<DummyDTO>> checkBeforeRoute(T inDTO, ServerWebExchange exchange) {
 
         // 체크 수행 전 요청 BMON 로그 적재
         return bmonSender.sendBmonMot("T", inDTO, new TrtErrInfoDTO("I", "", "", ""), exchange.getRequest())
                 .then(Mono.defer(() -> {
                     final ServerHttpRequest request = exchange.getRequest();
 
-                    // 유효성 체크크
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
-                    try {
-                        LocalDateTime.parse(request.getHeaders().getFirst(HeaderConstants.HEADER_LG_DATE_TIME),
-                                formatter);
-                    } catch (DateTimeParseException e) {
+                    // 날짜 형식 유효성 체크
+                    if (!isValidDateTime(request.getHeaders().getFirst(HeaderConstants.HEADER_LG_DATE_TIME))) {
                         return errorBmonSend("유효하지 않은 날짜 형식[KOL-Lg-Date-Time] 입니다.", request);
                     }
 
@@ -97,30 +93,24 @@ public class RestGwPreChkService {
 
                                 /* 1-1. 채널ID 체크 */
                                 List<KolChInfoDTO> chChkListRtn = dbRslt.getT1();
-                                if (chChkListRtn.size() <= 0 || StringUtil.isNull(chChkListRtn.get(0).chId())) {
+                                if (isEmpty(chChkListRtn) || StringUtil.isNull(chChkListRtn.get(0).chId())) {
                                     log.debug("허용 되지 않는 ChnlType 입니다. = [{}]",
                                             request.getHeaders().getFirst(HeaderConstants.HEADER_CHNL_TYPE));
                                     return errorBmonSend("허용 되지 않는 ChnlType 입니다.", request);
                                 }
 
                                 /* 1-2. 채널path 체크 */
-                                boolean pathRslt = false;
-                                for (int i = 0; i < chChkListRtn.size(); i++) {
-                                    if (request.getHeaders().getFirst(HeaderConstants.HEADER_ORI_URI)
-                                            .startsWith(chChkListRtn.get(i).chPathAdr())) {
-                                        pathRslt = true;
-                                        break;
-                                    }
-                                }
-                                if (!pathRslt) {
-                                    log.debug("허용 되지 않는 서비스URL 입니다. = [{}]",
-                                            request.getHeaders().getFirst(HeaderConstants.HEADER_ORI_URI));
+                                String requestUri = request.getHeaders().getFirst(HeaderConstants.HEADER_ORI_URI);
+                                boolean isAllowedPath = chChkListRtn.stream()
+                                        .anyMatch(ch -> requestUri.startsWith(ch.chPathAdr()));
+                                if (!isAllowedPath) {
+                                    log.debug("허용 되지 않는 서비스URL 입니다. = [{}]", requestUri);
                                     return errorBmonSend("허용 되지 않는 서비스URL 입니다.", request);
                                 }
 
                                 /* 2. 채널IP 체크 */
                                 List<KolChIpInfoDTO> chIpChkListRtn = dbRslt.getT2();
-                                if (chIpChkListRtn.size() <= 0 || StringUtil.isNull(chIpChkListRtn.get(0).chId())) {
+                                if (isEmpty(chIpChkListRtn) || StringUtil.isNull(chIpChkListRtn.get(0).chId())) {
                                     log.debug("허용 되지 않는 IP 입니다. = [{}]",
                                             request.getHeaders().getFirst(HeaderConstants.HEADER_ORI_IP));
                                     return errorBmonSend("허용 되지 않는 IP 입니다.", request);
@@ -128,7 +118,7 @@ public class RestGwPreChkService {
 
                                 /* 3. 채널사용자 체크 */
                                 List<KolChUserInfoDTO> chUserChkListRtn = dbRslt.getT3();
-                                if (chUserChkListRtn.size() <= 0 || StringUtil.isNull(chUserChkListRtn.get(0).chId())) {
+                                if (isEmpty(chUserChkListRtn) || StringUtil.isNull(chUserChkListRtn.get(0).chId())) {
                                     log.debug("허용 되지 않는 사용자ID 입니다. = [{}]",
                                             request.getHeaders().getFirst(HeaderConstants.HEADER_USER_ID));
                                     return errorBmonSend("허용 되지 않는 사용자ID 입니다.", request);
@@ -136,36 +126,68 @@ public class RestGwPreChkService {
 
                                 /* 4. API Key 체크 */
                                 List<ApiKeyInfoInfoDTO> apiKeyChkListRtn = dbRslt.getT4();
-                                if (apiKeyChkListRtn.size() <= 0 || StringUtil.isNull(apiKeyChkListRtn.get(0).chId())) {
+                                if (isEmpty(apiKeyChkListRtn) || StringUtil.isNull(apiKeyChkListRtn.get(0).chId())) {
                                     log.debug("API Key 조회 결과 없음.");
                                     return errorBmonSend("API Key 조회 결과 없음. 시스템 관리자에게 문의 하세요.", request);
                                 }
 
-                                // DB에 *(ALL) 로 등록되어있는경우에는 체크 SKIP
-                                String hApiKey = request.getHeaders().getFirst(HeaderConstants.HEADER_AUTH_KEY);
-                                if ("*".equals(apiKeyChkListRtn.get(0).apiKeyVal())) {
-                                    log.debug("API Key 전체 허용 서비스로 인증 SKIP!");
-                                } else {
-                                    if (StringUtil.isNull(hApiKey)) { // 입력여부 체크
-                                        log.debug("API Key가 입력되지 않았습니다.");
-                                        return errorBmonSend("API Key가 입력되지 않았습니다.", request);
-                                    } else if (hApiKey.indexOf("Bearer ") < 0) { // Bearer Type 체크
-                                        log.debug("API Key유형이 Bearer Type이 아닙니다.");
-                                        return errorBmonSend("API Key유형이 Bearer Type이 아닙니다.", request);
-                                    } else {
-                                        hApiKey = hApiKey.substring(7);
-
-                                        if (!hApiKey.equals(apiKeyChkListRtn.get(0).apiKeyVal())) {
-                                            log.debug("API Key 인증에 실패 하였습니다.");
-                                            return errorBmonSend("API Key 인증에 실패 하였습니다.", request);
-                                        }
-                                    }
+                                // API Key 인증 체크
+                                Mono<ResponseStdVO<DummyDTO>> apiKeyValidation = validateApiKey(request, apiKeyChkListRtn.get(0));
+                                if (apiKeyValidation != null) {
+                                    return apiKeyValidation;
                                 }
 
                                 return Mono.just(new ResponseStdVO<DummyDTO>(err, new DummyDTO()));
                             });
                 }));
 
+    }
+
+    private boolean isValidDateTime(String dateTimeStr) {
+        if (StringUtil.isNull(dateTimeStr)) {
+            return false;
+        }
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+            LocalDateTime.parse(dateTimeStr, formatter);
+            return true;
+        } catch (DateTimeParseException e) {
+            return false;
+        }
+    }
+
+    private boolean isEmpty(List<?> list) {
+        return list == null || list.isEmpty();
+    }
+
+    private Mono<ResponseStdVO<DummyDTO>> validateApiKey(ServerHttpRequest request, ApiKeyInfoInfoDTO apiKeyInfo) {
+        String apiKeyValue = apiKeyInfo.apiKeyVal();
+        
+        // DB에 *(ALL)로 등록되어있는 경우에는 체크 SKIP
+        if ("*".equals(apiKeyValue)) {
+            log.debug("API Key 전체 허용 서비스로 인증 SKIP!");
+            return null;
+        }
+
+        String headerApiKey = request.getHeaders().getFirst(HeaderConstants.HEADER_AUTH_KEY);
+        
+        if (StringUtil.isNull(headerApiKey)) {
+            log.debug("API Key가 입력되지 않았습니다.");
+            return errorBmonSend("API Key가 입력되지 않았습니다.", request);
+        }
+        
+        if (!headerApiKey.startsWith("Bearer ")) {
+            log.debug("API Key유형이 Bearer Type이 아닙니다.");
+            return errorBmonSend("API Key유형이 Bearer Type이 아닙니다.", request);
+        }
+        
+        String actualApiKey = headerApiKey.substring(7);
+        if (!actualApiKey.equals(apiKeyValue)) {
+            log.debug("API Key 인증에 실패 하였습니다.");
+            return errorBmonSend("API Key 인증에 실패 하였습니다.", request);
+        }
+        
+        return null;
     }
 
     // 오류 BMON 처리 후 return
