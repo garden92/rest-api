@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ServerWebExchange;
 
 import com.kt.kol.api.prechk.model.DummyDTO;
 import com.kt.kol.api.prechk.service.RestGwPreChkService;
@@ -14,7 +15,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -26,16 +26,16 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class RestGwPreChkController {
 
-	private final RestGwPreChkService restGwPreChkService;
-	
-	@Operation(summary = "restGW용 사전체크", description = "restGW용 사전체크를 수행합니다.")
-	@ApiResponses({
-		@ApiResponse(responseCode = "200", description = "체크 성공", content = @Content(mediaType = "application/json"))
-	})
-	@PostMapping("/ckeckBeforeRoute")
-	public <T> Mono<ResponseStdVO<DummyDTO>> ckeckBeforeRoute(@RequestBody T inDTO, HttpServletRequest request) {
-		
-		return restGwPreChkService.ckeckBeforeRoute(inDTO, request);
-	}
-	
+    private final RestGwPreChkService restGwPreChkService;
+
+    @Operation(summary = "restGW용 사전체크", description = "restGW용 사전체크를 수행합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "체크 성공", content = @Content(mediaType = "application/json"))
+    })
+    @PostMapping("/ckeckBeforeRoute")
+    public <T> Mono<ResponseStdVO<DummyDTO>> ckeckBeforeRoute(@RequestBody T inDTO, ServerWebExchange exchange) {
+
+        return restGwPreChkService.ckeckBeforeRoute(inDTO, exchange);
+    }
+
 }
