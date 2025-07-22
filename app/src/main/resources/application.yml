@@ -4,18 +4,18 @@ spring:
     active: local
   application:
     name: kol-rest-api
+  webflux:
+    base-path: /kol-rest-api
 
 server:
   port: 8080
   bmon: true
-  servlet.context-path: /kol-rest-api
 
 # spring boot - actuator expose
 management:
   endpoints:
-    health:
-      show-details: always
     web:
+      base-path: /actuator
       exposure:
         include: health, loggers, prometheus
   endpoint:
