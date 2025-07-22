@@ -13,17 +13,15 @@
  	<artifactId>rest-api</artifactId>
  
  	<dependencies>
+ 		<!-- Internal modules -->
  		<dependency>
  			<groupId>com.kt.kol</groupId>
  			<artifactId>common</artifactId>
- 			<version>0.0.1</version>
  		</dependency>
  		
- 		<dependency>
-             <groupId>org.springframework.boot</groupId>
-             <artifactId>spring-boot-starter</artifactId>
-         </dependency>
+ 		<!-- Spring Boot starters -->
  
+ 		<!-- Testing -->
  		<dependency>
  			<groupId>org.springframework.boot</groupId>
  			<artifactId>spring-boot-starter-test</artifactId>
@@ -31,6 +29,7 @@
  		</dependency>
  		
  
+ 		<!-- Utilities -->
  		<dependency>
  			<groupId>org.projectlombok</groupId>
  			<artifactId>lombok</artifactId>
@@ -42,6 +41,7 @@
  			<artifactId>spring-boot-starter-webflux</artifactId>
  		</dependency>
  
+ 		<!-- Cloud -->
  		<dependency>
  			<groupId>org.springframework.cloud</groupId>
  			<artifactId>spring-cloud-starter-openfeign</artifactId>
@@ -51,6 +51,8 @@
  			<groupId>org.springframework.boot</groupId>
  			<artifactId>spring-boot-starter-data-r2dbc</artifactId>
  		</dependency>
+ 		
+ 		<!-- Database -->
  		<dependency>
  			<groupId>org.postgresql</groupId>
  			<artifactId>postgresql</artifactId>
@@ -60,12 +62,13 @@
  			<artifactId>r2dbc-postgresql</artifactId>
  		</dependency>
  		
+ 		<!-- JSON processing -->
  		<dependency>
  			<groupId>org.json</groupId>
  			<artifactId>json</artifactId>
- 			<version>20231013</version>
  		</dependency>
  
+ 		<!-- BMON API -->
  		<dependency>
  		    <groupId>com.kt.icis</groupId>
  		    <artifactId>onm-bmon-api</artifactId>

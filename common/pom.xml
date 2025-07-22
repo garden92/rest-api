@@ -12,28 +12,34 @@
 	<artifactId>common</artifactId>
 
 	<dependencies>
+		<!-- Spring Boot starters -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
+			<artifactId>spring-boot-starter-webflux</artifactId>
 		</dependency>
+		
+		<!-- OpenAPI documentation -->
 		<dependency>
 			<groupId>org.springdoc</groupId>
-		    <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-		    <version>2.0.2</version>
+			<artifactId>springdoc-openapi-starter-webflux-ui</artifactId>
 		</dependency>
+		
+		<!-- Utilities -->
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
 		</dependency>
+		
+		<!-- Feign client -->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-openfeign</artifactId>
 		</dependency>
 		<dependency>
-	        <groupId>io.github.openfeign</groupId>
-	        <artifactId>feign-core</artifactId>
-	    </dependency>
+			<groupId>io.github.openfeign</groupId>
+			<artifactId>feign-core</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>io.github.openfeign</groupId>
 			<artifactId>feign-okhttp</artifactId>
@@ -42,19 +48,20 @@
 			<groupId>io.github.openfeign</groupId>
 			<artifactId>feign-gson</artifactId>
 		</dependency>
-	    <dependency>
-		    <groupId>io.github.openfeign</groupId>
-		    <artifactId>feign-jaxb</artifactId>
+		<dependency>
+			<groupId>io.github.openfeign</groupId>
+			<artifactId>feign-jaxb</artifactId>
 		</dependency>
+		
+		<!-- XML binding -->
 		<dependency>
 			<groupId>jakarta.xml.bind</groupId>
 			<artifactId>jakarta.xml.bind-api</artifactId>
 		</dependency>
-	  
 		<dependency>
 			<groupId>org.glassfish.jaxb</groupId>
-	        <artifactId>jaxb-runtime</artifactId>
-	    </dependency>
+			<artifactId>jaxb-runtime</artifactId>
+		</dependency>
 	</dependencies>
 
 
