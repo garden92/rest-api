@@ -22,7 +22,6 @@
  		<java.version>17</java.version>
  		<maven-jar-plugin.version>3.1.1</maven-jar-plugin.version>
  		<lib.external.dir>${project.basedir}/lib</lib.external.dir>
- 		<spring-cloud.version>2023.0.3</spring-cloud.version>
  		<springdoc-openapi.version>2.0.2</springdoc-openapi.version>
  		<json.version>20231013</json.version>
  		<bmon-api.version>2.0.0</bmon-api.version>
@@ -36,14 +35,6 @@
  	
  	<dependencyManagement>
  		<dependencies>
- 			<dependency>
- 				<groupId>org.springframework.cloud</groupId>
- 				<artifactId>spring-cloud-dependencies</artifactId>
- 				<version>${spring-cloud.version}</version>
- 				<type>pom</type>
- 				<scope>import</scope>
- 			</dependency>
- 			
  			<!-- Internal modules -->
  			<dependency>
  				<groupId>com.kt.kol</groupId>
@@ -67,6 +58,7 @@
  				<artifactId>json</artifactId>
  				<version>${json.version}</version>
  			</dependency>
+ 			
  		</dependencies>
  	</dependencyManagement>
  </project>
