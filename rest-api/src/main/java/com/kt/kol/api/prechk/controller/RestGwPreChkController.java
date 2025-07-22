@@ -22,20 +22,26 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 @Tag(name = "RESTGW", description = "RestGW API")
 @RestController
-@RequestMapping("/restGw")
+@RequestMapping("/restGw/ckeckBeforeRoute")
 @Slf4j
 public class RestGwPreChkController {
 
     private final RestGwPreChkService restGwPreChkService;
 
-    @Operation(summary = "restGW용 사전체크", description = "restGW용 사전체크를 수행합니다.")
+    @Operation(summary = "REST Gateway 사전체크", description = """
+            REST Gateway 라우팅 전 사전체크를 수행합니다.
+            - 채널 ID 및 허용 경로 검증
+            - 허용 IP 주소 검증
+            - 사용자 권한 검증
+            - API Key 인증 검증
+            """)
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "체크 성공", content = @Content(mediaType = "application/json"))
+            @ApiResponse(responseCode = "200", description = "사전체크 성공", content = @Content(mediaType = "application/json")),
     })
-    @PostMapping("/ckeckBeforeRoute")
-    public <T> Mono<ResponseStdVO<DummyDTO>> ckeckBeforeRoute(@RequestBody T inDTO, ServerWebExchange exchange) {
+    @PostMapping
+    public <T> Mono<ResponseStdVO<DummyDTO>> checkBeforeRoute(@RequestBody T inDTO, ServerWebExchange exchange) {
 
-        return restGwPreChkService.ckeckBeforeRoute(inDTO, exchange);
+        return restGwPreChkService.checkBeforeRoute(inDTO, exchange);
     }
 
 }

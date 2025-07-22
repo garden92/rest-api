@@ -31,7 +31,7 @@ public class BmonSenderController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "체크 성공", content = @Content(mediaType = "application/json"))
     })
-    @PostMapping()
+    @PostMapping
     public <T> Mono<Void> processBmonSend(@RequestBody RequestStdVO<T> inVO, ServerWebExchange exchange) {
 
         return bmonSenderService.processBmonSend(inVO, exchange);
