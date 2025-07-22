@@ -21,7 +21,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 @Tag(name = "RESTGW", description = "RestGW API")
 @RestController
-@RequestMapping("/restGw")
+@RequestMapping("/restGw/processBmonSend")
 @Slf4j
 public class BmonSenderController {
 
@@ -31,7 +31,7 @@ public class BmonSenderController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "체크 성공", content = @Content(mediaType = "application/json"))
     })
-    @PostMapping("/processBmonSend")
+    @PostMapping()
     public <T> Mono<Void> processBmonSend(@RequestBody RequestStdVO<T> inVO, ServerWebExchange exchange) {
 
         return bmonSenderService.processBmonSend(inVO, exchange);

@@ -21,18 +21,18 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 @Tag(name = "RESTGW", description = "RestGW API")
 @RestController
-@RequestMapping("/restGw")
+@RequestMapping("/restGw/retrieveRouteInfo")
 @Slf4j
 public class RestGwRouteController {
 
     private final RestGwRouteService restGwRouteService;
-	
-	@Operation(summary = "restGW용 라우트정보조회", description = "restGW용 라우트정보를 조회합니다.")
-	@ApiResponses({
-		@ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(mediaType = "application/json"))
-	})
-	@PostMapping("/retrieveRouteInfo")
-	public Mono<List<Map<String, Object>>> retrieveRouteInfo() {	
-		return restGwRouteService.retrieveRouteInfo();
-	}
+
+    @Operation(summary = "restGW용 라우트정보조회", description = "restGW용 라우트정보를 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(mediaType = "application/json"))
+    })
+    @PostMapping
+    public Mono<List<Map<String, Object>>> retrieveRouteInfo() {
+        return restGwRouteService.retrieveRouteInfo();
+    }
 }
