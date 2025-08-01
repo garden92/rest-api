@@ -53,86 +53,82 @@ public class RestGwPreChkService {
                         return errorBmonSend("유효하지 않은 날짜 형식[KOL-Lg-Date-Time] 입니다.", request);
                     }
 
-                    // 채널ID 및 허용경로 체크
-                    Mono<List<KolChInfoDTO>> chChkList = kolChInfoRepository
+                    // 채널ID 존재 여부만 체크 - hasElements() 사용으로 메모리 효율적
+                    String requestUri = request.getHeaders().getFirst(HeaderConstants.HEADER_ORI_URI);
+                    Mono<Boolean> chChkMono = kolChInfoRepository
                             .checkKolChInfo(request.getHeaders().getFirst(HeaderConstants.HEADER_CHNL_TYPE),
                                     request.getHeaders().getFirst(HeaderConstants.HEADER_LG_DATE_TIME))
-                            .collectList();
+                            .any(ch -> requestUri.startsWith(ch.chPathAdr())); // 경로 체크도 함께 수행
 
-                    // 허용IP 체크
-                    Mono<List<KolChIpInfoDTO>> ipChkList = kolChIpInfoRepository
+                    // 허용IP 체크 - 존재 여부만 확인
+                    Mono<Boolean> ipChkMono = kolChIpInfoRepository
                             .checkKolChIpInfo(request.getHeaders().getFirst(HeaderConstants.HEADER_CHNL_TYPE),
                                     request.getHeaders().getFirst(HeaderConstants.HEADER_ORI_IP))
-                            .collectList();
+                            .hasElements();
 
-                    // 허용사용자 체크
-                    Mono<List<KolChUserInfoDTO>> userChkList = kolChUserInfoRepository
+                    // 허용사용자 체크 - 존재 여부만 확인
+                    Mono<Boolean> userChkMono = kolChUserInfoRepository
                             .checkKolChUserInfo(request.getHeaders().getFirst(HeaderConstants.HEADER_CHNL_TYPE),
                                     request.getHeaders().getFirst(HeaderConstants.HEADER_USER_ID))
-                            .collectList();
-                    // API Key 체크
-                    Mono<List<ApiKeyInfoInfoDTO>> apiKeyChkList = apiKeyInfoRepository
+                            .hasElements();
+
+                    // API Key 체크 - 실제 값이 필요하므로 next() 유지
+                    Mono<ApiKeyInfoInfoDTO> apiKeyChkMono = apiKeyInfoRepository
                             .checkApiKeyInfo(request.getHeaders().getFirst(HeaderConstants.HEADER_CHNL_TYPE),
                                     request.getHeaders().getFirst(HeaderConstants.HEADER_ORI_URI),
                                     request.getHeaders().getFirst(HeaderConstants.HEADER_LG_DATE_TIME),
                                     request.getHeaders().getFirst(HeaderConstants.HEADER_ORI_IP))
-                            .collectList();
+                            .next()
+                            .switchIfEmpty(Mono.just(new ApiKeyInfoInfoDTO(null, null, null)));
 
                     // 병렬 체크 로직 수행
-                    return Mono.zip(chChkList, ipChkList, userChkList, apiKeyChkList)
+                    return Mono.zip(chChkMono, ipChkMono, userChkMono, apiKeyChkMono)
                             .flatMap(dbRslt -> {
 
                                 /**
                                  * 결과 처리
-                                 * 1. 채널ID 및 채널허용Path
-                                 * 2. 채널IP
-                                 * 3. 채널UserID
-                                 * 4. API Key
+                                 * 1. 채널ID 및 채널허용Path (Boolean)
+                                 * 2. 채널IP (Boolean)
+                                 * 3. 채널UserID (Boolean)
+                                 * 4. API Key (DTO)
                                  */
                                 TrtErrInfoDTO err = new TrtErrInfoDTO("I", "", "", "");
 
-                                /* 1-1. 채널ID 체크 */
-                                List<KolChInfoDTO> chChkListRtn = dbRslt.getT1();
-                                if (isEmpty(chChkListRtn) || StringUtil.isNull(chChkListRtn.get(0).chId())) {
-                                    log.debug("허용 되지 않는 ChnlType 입니다. = [{}]",
-                                            request.getHeaders().getFirst(HeaderConstants.HEADER_CHNL_TYPE));
-                                    return errorBmonSend("허용 되지 않는 ChnlType 입니다.", request);
-                                }
-
-                                /* 1-2. 채널path 체크 */
-                                String requestUri = request.getHeaders().getFirst(HeaderConstants.HEADER_ORI_URI);
-                                boolean isAllowedPath = chChkListRtn.stream()
-                                        .anyMatch(ch -> requestUri.startsWith(ch.chPathAdr()));
-                                if (!isAllowedPath) {
-                                    log.debug("허용 되지 않는 서비스URL 입니다. = [{}]", requestUri);
-                                    return errorBmonSend("허용 되지 않는 서비스URL 입니다.", request);
+                                /* 1. 채널ID 및 경로 체크 */
+                                Boolean chChkResult = dbRslt.getT1();
+                                if (!chChkResult) {
+                                    log.debug("허용 되지 않는 ChnlType 또는 서비스URL 입니다. ChnlType=[{}], URL=[{}]",
+                                            request.getHeaders().getFirst(HeaderConstants.HEADER_CHNL_TYPE),
+                                            requestUri);
+                                    return errorBmonSend("허용 되지 않는 ChnlType 또는 서비스URL 입니다.", request);
                                 }
 
                                 /* 2. 채널IP 체크 */
-                                List<KolChIpInfoDTO> chIpChkListRtn = dbRslt.getT2();
-                                if (isEmpty(chIpChkListRtn) || StringUtil.isNull(chIpChkListRtn.get(0).chId())) {
+                                Boolean ipChkResult = dbRslt.getT2();
+                                if (!ipChkResult) {
                                     log.debug("허용 되지 않는 IP 입니다. = [{}]",
                                             request.getHeaders().getFirst(HeaderConstants.HEADER_ORI_IP));
                                     return errorBmonSend("허용 되지 않는 IP 입니다.", request);
                                 }
 
                                 /* 3. 채널사용자 체크 */
-                                List<KolChUserInfoDTO> chUserChkListRtn = dbRslt.getT3();
-                                if (isEmpty(chUserChkListRtn) || StringUtil.isNull(chUserChkListRtn.get(0).chId())) {
+                                Boolean userChkResult = dbRslt.getT3();
+                                if (!userChkResult) {
                                     log.debug("허용 되지 않는 사용자ID 입니다. = [{}]",
                                             request.getHeaders().getFirst(HeaderConstants.HEADER_USER_ID));
                                     return errorBmonSend("허용 되지 않는 사용자ID 입니다.", request);
                                 }
 
                                 /* 4. API Key 체크 */
-                                List<ApiKeyInfoInfoDTO> apiKeyChkListRtn = dbRslt.getT4();
-                                if (isEmpty(apiKeyChkListRtn) || StringUtil.isNull(apiKeyChkListRtn.get(0).chId())) {
+                                ApiKeyInfoInfoDTO apiKeyChkResult = dbRslt.getT4();
+                                if (StringUtil.isNull(apiKeyChkResult.chId())) {
                                     log.debug("API Key 조회 결과 없음.");
                                     return errorBmonSend("API Key 조회 결과 없음. 시스템 관리자에게 문의 하세요.", request);
                                 }
 
                                 // API Key 인증 체크
-                                Mono<ResponseStdVO<DummyDTO>> apiKeyValidation = validateApiKey(request, apiKeyChkListRtn.get(0));
+                                Mono<ResponseStdVO<DummyDTO>> apiKeyValidation = validateApiKey(request,
+                                        apiKeyChkResult);
                                 if (apiKeyValidation != null) {
                                     return apiKeyValidation;
                                 }
@@ -156,13 +152,9 @@ public class RestGwPreChkService {
         }
     }
 
-    private boolean isEmpty(List<?> list) {
-        return list == null || list.isEmpty();
-    }
-
     private Mono<ResponseStdVO<DummyDTO>> validateApiKey(ServerHttpRequest request, ApiKeyInfoInfoDTO apiKeyInfo) {
         String apiKeyValue = apiKeyInfo.apiKeyVal();
-        
+
         // DB에 *(ALL)로 등록되어있는 경우에는 체크 SKIP
         if ("*".equals(apiKeyValue)) {
             log.debug("API Key 전체 허용 서비스로 인증 SKIP!");
@@ -170,23 +162,23 @@ public class RestGwPreChkService {
         }
 
         String headerApiKey = request.getHeaders().getFirst(HeaderConstants.HEADER_AUTH_KEY);
-        
+
         if (StringUtil.isNull(headerApiKey)) {
             log.debug("API Key가 입력되지 않았습니다.");
             return errorBmonSend("API Key가 입력되지 않았습니다.", request);
         }
-        
+
         if (!headerApiKey.startsWith("Bearer ")) {
             log.debug("API Key유형이 Bearer Type이 아닙니다.");
             return errorBmonSend("API Key유형이 Bearer Type이 아닙니다.", request);
         }
-        
+
         String actualApiKey = headerApiKey.substring(7);
         if (!actualApiKey.equals(apiKeyValue)) {
             log.debug("API Key 인증에 실패 하였습니다.");
             return errorBmonSend("API Key 인증에 실패 하였습니다.", request);
         }
-        
+
         return null;
     }
 

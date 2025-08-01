@@ -17,12 +17,14 @@ import com.kt.kol.common.util.DateUtil;
 import com.kt.kol.common.util.HeaderConstants;
 import com.kt.kol.common.util.StringUtil;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class BMONSender {
 
     @Value("${server.bmon}")
@@ -34,8 +36,10 @@ public class BMONSender {
     @Value("${spring.application.name}")
     String apiSrcName;
 
-    String HEADER_SEPARATOR = "=";
-    String LINE_FEED = "\n";
+    private static final String HEADER_SEPARATOR = "=";
+    private static final String LINE_FEED = "\n";
+
+    private final ObjectMapper objectMapper;
 
     /**
      * BMON 연동 처리
@@ -85,12 +89,12 @@ public class BMONSender {
             bmonHeader.put("curHostId", StringUtil.getIPAddress());
 
             // header key/value로 변환
-            StringBuilder headerStrBulder = new StringBuilder();
+            StringBuilder headerStrBulder = new StringBuilder(512); // 초기 용량 설정으로 resize 방지
             for (Object key : bmonHeader.keySet()) {
                 headerStrBulder.append(key)
-                        .append(this.HEADER_SEPARATOR)
+                        .append(HEADER_SEPARATOR)
                         .append(bmonHeader.get((String) key))
-                        .append(this.LINE_FEED);
+                        .append(LINE_FEED);
             }
 
             log.debug("BMON 연동 시작. 입력헤더=[{}]", headerStrBulder.toString());
@@ -124,19 +128,25 @@ public class BMONSender {
             String bodyString = "";
             if (inDTO != null) {
                 // body json Key:Value형태 문자열로 변환
-                ObjectMapper objMapper = new ObjectMapper();
                 String objMapperStr = "";
                 try {
                     if ("T".equals(TrFlag)) {
-                        objMapperStr = objMapper.writerWithDefaultPrettyPrinter().writeValueAsString(inDTO);
+                        objMapperStr = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(inDTO);
                     } else {
                         RequestStdVO<T> reqVO = new RequestStdVO<T>(trtErrInfoDTO, inDTO);
-                        objMapperStr = objMapper.writerWithDefaultPrettyPrinter().writeValueAsString(reqVO);
+                        objMapperStr = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(reqVO);
                     }
                 } catch (Exception e) {
+                    log.warn("BMON JSON 변환 중 오류 발생. BMON 연동은 계속 진행됩니다. 오류: {}", e.getMessage(), e);
+                    objMapperStr = "{}"; // 빈 JSON 객체로 fallback
                 }
 
-                bodyString = jsonToKeyValue(new JSONObject(objMapperStr), "");
+                try {
+                    bodyString = jsonToKeyValue(new JSONObject(objMapperStr), "");
+                } catch (Exception e) {
+                    log.warn("BMON JSON 파싱 중 오류 발생. 빈 문자열로 처리합니다. 오류: {}", e.getMessage());
+                    bodyString = "";
+                }
             }
 
             log.debug("BMON 연동 시작. 입력전문=[{}]", bodyString);
@@ -149,7 +159,7 @@ public class BMONSender {
     // JSONObject to Key:Value
     public static String jsonToKeyValue(JSONObject inJsonObj, String prefix) {
 
-        StringBuilder result = new StringBuilder();
+        StringBuilder result = new StringBuilder(256); // 초기 용량 설정
         Iterator<String> keys = inJsonObj.keys();
 
         while (keys.hasNext()) {
@@ -186,7 +196,7 @@ public class BMONSender {
     // JSONArray to key:Value
     public static String processJsonArray(JSONArray jsonArray, String prefix) {
 
-        StringBuilder result = new StringBuilder();
+        StringBuilder result = new StringBuilder(128); // 초기 용량 설정
 
         for (int i = 0; i < jsonArray.length(); i++) {
             Object item = jsonArray.get(i);
