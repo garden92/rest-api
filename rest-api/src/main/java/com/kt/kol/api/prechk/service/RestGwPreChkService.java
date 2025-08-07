@@ -53,7 +53,7 @@ public class RestGwPreChkService {
                         return errorBmonSend("유효하지 않은 날짜 형식[KOL-Lg-Date-Time] 입니다.", request);
                     }
 
-                    // 채널ID 존재 여부만 체크 - hasElements() 사용으로 메모리 효율적
+                    // 채널ID 존재 여부만 체크 - hasElements() 사용으로 메모리 효율 확보
                     String requestUri = request.getHeaders().getFirst(HeaderConstants.HEADER_ORI_URI);
                     Mono<Boolean> chChkMono = kolChInfoRepository
                             .checkKolChInfo(request.getHeaders().getFirst(HeaderConstants.HEADER_CHNL_TYPE),
