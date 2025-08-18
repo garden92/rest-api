@@ -11,14 +11,15 @@ import reactor.core.publisher.Flux;
 @Repository
 public interface KolChInfoRepository extends ReactiveCrudRepository<KolChInfoDTO, String>{
 
+	// Mock 프로파일용 H2 호환 쿼리 (PARSEDATETIME 사용)
 	@Query("""
 	  select a.ch_id,
 	         a.ch_path_adr
 	    from kolown.kol_ch_bas a,
 	         kolown.kol_ch_info_bas b
 	   where a.ch_id = b.ch_id 
-	     and to_timestamp(:lgDateTime, 'yyyymmddhh24miss') BETWEEN a.efct_st_date AND a.efct_fns_date
-	     and to_timestamp(:lgDateTime, 'yyyymmddhh24miss') BETWEEN b.efct_st_date AND b.efct_fns_date
+	     and PARSEDATETIME(:lgDateTime, 'yyyyMMddHHmmss') BETWEEN a.efct_st_date AND a.efct_fns_date
+	     and PARSEDATETIME(:lgDateTime, 'yyyyMMddHHmmss') BETWEEN b.efct_st_date AND b.efct_fns_date
 	     and a.ch_id = :chId
 			""")
 	Flux<KolChInfoDTO> checkKolChInfo(String chId, String lgDateTime);

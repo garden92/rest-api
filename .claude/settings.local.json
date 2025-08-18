@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cmd /c:*)",
+      "Bash(mvn spring-boot:run:*)",
+      "Bash(powershell:*)",
+      "Bash(mvn clean:*)",
+      "Bash(taskkill:*)",
+      "Bash(del:*)",
+      "Bash(rm:*)",
+      "Bash(mvn dependency:tree:*)",
+      "Bash(mvn test:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

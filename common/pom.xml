@@ -18,11 +18,6 @@
 			<artifactId>spring-boot-starter-webflux</artifactId>
 		</dependency>
 		
-		<!-- OpenAPI documentation -->
-		<dependency>
-			<groupId>org.springdoc</groupId>
-			<artifactId>springdoc-openapi-starter-webflux-ui</artifactId>
-		</dependency>
 		
 		<!-- Utilities -->
 		<dependency>

@@ -9,9 +9,8 @@
  		<version>0.0.1</version>
  	</parent>
  	
- 	
  	<artifactId>rest-api</artifactId>
- 
+
  	<dependencies>
  		<!-- Internal modules -->
  		<dependency>
@@ -29,14 +28,24 @@
  			<artifactId>spring-boot-starter-data-r2dbc</artifactId>
  		</dependency>
  		
- 		<!-- Testing -->
+ 		<!-- OpenAPI documentation -->
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webflux-ui</artifactId>
+		</dependency>
+		
+		<!-- Testing -->
  		<dependency>
  			<groupId>org.springframework.boot</groupId>
  			<artifactId>spring-boot-starter-test</artifactId>
  			<scope>test</scope>
  		</dependency>
+ 		<dependency>
+ 			<groupId>io.projectreactor</groupId>
+ 			<artifactId>reactor-test</artifactId>
+ 			<scope>test</scope>
+ 		</dependency>
  		
- 
  		<!-- Utilities -->
  		<dependency>
  			<groupId>org.projectlombok</groupId>
@@ -54,12 +63,6 @@
  			<artifactId>r2dbc-postgresql</artifactId>
  		</dependency>
  		
- 		<!-- JSON processing -->
- 		<dependency>
- 			<groupId>org.json</groupId>
- 			<artifactId>json</artifactId>
- 		</dependency>
- 
  		<!-- BMON API -->
  		<dependency>
  		    <groupId>com.kt.icis</groupId>
@@ -68,6 +71,13 @@
  		    <scope>system</scope>
  		    <systemPath>${lib.external.dir}/com/kt/icis/onm-bmon-api/2.0.0/onm-bmon-api-2.0.0.jar</systemPath>
  		</dependency>
+ 		
+ 		<!-- JSON Flattener -->
+ 		<dependency>
+ 		    <groupId>com.github.wnameless.json</groupId>
+ 		    <artifactId>json-flattener</artifactId>
+ 		    <version>0.17.3</version>
+ 		</dependency>
  	</dependencies>
  	
- </project>
+</project>

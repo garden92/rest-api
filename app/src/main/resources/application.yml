@@ -1,7 +1,7 @@
 # spring default
 spring:
   profiles:
-    active: local
+    active: mock
   application:
     name: kol-rest-api
   webflux:
@@ -23,8 +23,21 @@ management:
       show-details: always
 
 ---
-# Profile - local
+# Profile - local (PostgreSQL Database)
 spring:
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    clean-disabled: false
+    schemas: kolown
+    url: jdbc:postgresql://pgdb-az01-dev-kol-01.postgres.database.azure.com:5432/devkol?sslmode=require&channelBinding=disable
+    user: kolown
+    password: kown1q2w3e!
+    table: flyway_schema_history
+    # PostgreSQL용 SQL 스크립트 위치 설정
+    locations: classpath:db/migration
+    # 실패한 마이그레이션 무시하고 재시작
+    baseline-version: 0
   config:
     activate:
       on-profile: local
@@ -32,9 +45,9 @@ spring:
     restart:
       enabled: true
   r2dbc:
-    url: ${R2DBC_URL_DEV}
-    username: ${R2DBC_USER_NAME}
-    password: ${DB_PWD}
+    url: r2dbc:postgresql://pgdb-az01-dev-kol-01.postgres.database.azure.com:5432/devkol?sslmode=require&channelBinding=disable
+    username: kolown
+    password: kown1q2w3e!
 server:
   port: 8003
 
@@ -121,3 +134,51 @@ e2e:
   properties:
     path: /config/bmon/prd
 gw.itg.url: http://kol-itg-gw
+
+---
+# Profile - mock (Mock 환경)
+spring:
+  config:
+    activate:
+      on-profile: mock
+  r2dbc:
+    url: r2dbc:h2:mem:///testdb?options=DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  flyway:
+    enabled: false
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:db/h2/schema.sql
+      data-locations: classpath:db/h2/data.sql
+server:
+  port: 8003
+  bmon: false
+
+logging:
+  config: classpath:logback-spring-dev.xml
+  file:
+    name: kol-rest-api
+    path: /var/log
+
+# Mock 환경 설정
+e2e:
+  properties:
+    path: /mock/bmon
+gw.itg.url: http://localhost:8080/mock-gw
+
+# Mock 서버 설정
+mock:
+  enabled: true
+  delay:
+    min: 100
+    max: 500
+  failure:
+    rate: 0.1 # 10% 실패율
+  database:
+    auto-populate: true # 테스트 데이터 자동 생성

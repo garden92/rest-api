@@ -11,6 +11,7 @@ import reactor.core.publisher.Flux;
 @Repository
 public interface ApiKeyInfoRepository extends ReactiveCrudRepository<ApiKeyInfoInfoDTO, String>{
 
+	// Mock 프로파일용 H2 호환 쿼리 (PARSEDATETIME 사용)
 	@Query("""
 	  select :chId as ch_id,
 			:rqtSvcNm as rqt_svc_nm,
@@ -25,7 +26,7 @@ public interface ApiKeyInfoRepository extends ReactiveCrudRepository<ApiKeyInfoI
 		from kolown.api_key_info_bas
 		where ch_id = :chId
 		and rqt_svc_nm  = :rqtSvcNm
-		and to_timestamp(:lgDateTime, 'yyyymmddhh24miss') between efct_st_dt and efct_fns_dt
+		and PARSEDATETIME(:lgDateTime, 'yyyyMMddHHmmss') between efct_st_dt and efct_fns_dt
 			""")
 	Flux<ApiKeyInfoInfoDTO> checkApiKeyInfo(String chId, String rqtSvcNm, String lgDateTime, String ip);
 }
