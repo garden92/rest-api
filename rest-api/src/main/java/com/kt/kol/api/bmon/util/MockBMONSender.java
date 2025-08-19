@@ -17,9 +17,9 @@ import reactor.core.publisher.Mono;
  * Mock 환경 전용 BMON 송신기
  * 실제 BMON 연동을 시뮬레이션하며, 지연시간과 실패율을 설정 가능
  */
-@Service
+// @Service
 @Slf4j
-@Profile("mock")
+// @Profile("mock")
 public class MockBMONSender implements BmonSenderInterface {
 
     @Value("${mock.delay.min:100}")

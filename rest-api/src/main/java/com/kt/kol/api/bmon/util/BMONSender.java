@@ -27,7 +27,8 @@ import reactor.core.scheduler.Schedulers;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@Profile({ "dev", "sit", "prd" })
+// @Profile({ "dev", "sit", "prd" })
+@Profile({ "mock" })
 public class BMONSender implements BmonSenderInterface {
 
     @Value("${server.bmon}")
@@ -152,8 +153,26 @@ public class BMONSender implements BmonSenderInterface {
             return "";
         }
 
+        // 이미 문자열인 경우 JSON 파싱 시도
+        if (object instanceof String) {
+            String jsonString = (String) object;
+            try {
+                Map<String, Object> map = objectMapper.readValue(jsonString, new TypeReference<Map<String, Object>>() {});
+                // 플랫 맵으로 변환
+                Map<String, Object> flatMap = flattenMapOptimized(map, "");
+                // Key:Value 문자열 생성
+                StringBuilder result = new StringBuilder(INITIAL_BODY_CAPACITY);
+                flatMap.forEach((key, value) -> result.append(key).append(":").append(value).append(LINE_FEED));
+                return result.toString();
+            } catch (Exception e) {
+                // JSON 파싱 실패시 문자열 그대로 반환
+                return jsonString;
+            }
+        }
+
         // Jackson으로 직접 Map 변환 (이중 변환 제거)
-        Map<String, Object> map = objectMapper.convertValue(object, new TypeReference<Map<String, Object>>() {});
+        Map<String, Object> map = objectMapper.convertValue(object, new TypeReference<Map<String, Object>>() {
+        });
 
         // 플랫 맵으로 변환
         Map<String, Object> flatMap = flattenMapOptimized(map, "");
