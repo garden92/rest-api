@@ -7,14 +7,6 @@ public record TrtErrInfoDTO(
 		String responseDtal // 응답상세(개발자 참조용)
 ) {
 
-	public static TrtErrInfoDTO error(ITGGWResponseStdVO itgGWResponseStdVO) {
-		return new TrtErrInfoDTO(
-				itgGWResponseStdVO.responseType().toString(),
-				itgGWResponseStdVO.responseCode(),
-				itgGWResponseStdVO.responseBasc(),
-				itgGWResponseStdVO.responseDtal());
-	}
-
 	public static TrtErrInfoDTO error(Exception e) {
 		return new TrtErrInfoDTO(
 				"S",

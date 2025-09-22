@@ -17,7 +17,12 @@
       "mcp__serena__read_file",
       "mcp__serena__find_file",
       "mcp__serena__execute_shell_command",
-      "mcp__serena__replace_symbol_body"
+      "mcp__serena__replace_symbol_body",
+      "Bash(curl:*)",
+      "mcp__serena__create_text_file",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(tasklist)"
     ],
     "deny": [],
     "ask": []

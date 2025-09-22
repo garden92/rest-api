@@ -22,9 +22,8 @@
  		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
  		<java.version>17</java.version>
  		<maven-jar-plugin.version>3.1.1</maven-jar-plugin.version>
- 		<lib.external.dir>${project.basedir}/lib</lib.external.dir>
  		<springdoc-openapi.version>2.8.0</springdoc-openapi.version>
- 		<bmon-api.version>2.0.0</bmon-api.version>
+		<flyway.version>11.13.1</flyway.version>
  	</properties>
 
  	<modules>

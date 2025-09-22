@@ -10,15 +10,29 @@
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <layout class="ch.qos.logback.classic.PatternLayout">
             <Pattern>
-                <!-- %highlight([%d{MM-dd HH:mm:ss.SSS}][%-24.-24thread][%-46.46logger][%4L][%-1.-1p] %m%n) -->
-                %highlight([%d{MM-dd HH:mm:ss.SSS}][%-18.-18thread][%-40.40logger][%4L][%-1.-1p] %m%n)
+                %clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%5p) %clr([%15.15t]){faint} %clr([%X{correlationId:-}]){yellow} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n%wEx
             </Pattern>
         </layout>
+    </appender>
+
+    <!-- FILE appender -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/kol-rest-api-dev.log</file>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{correlationId:-}] %logger{40} - %msg%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/kol-rest-api-dev.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>10MB</maxFileSize>
+            <maxHistory>7</maxHistory>
+            <totalSizeCap>100MB</totalSizeCap>
+        </rollingPolicy>
     </appender>
 
     <!-- application Logger -->
     <logger name="com.kt" level="DEBUG" additivity="false">
         <appender-ref ref="STDOUT"/>
+        <appender-ref ref="FILE"/>
     </logger>
 
     <!-- springframework Loggers -->
@@ -84,8 +98,9 @@
     </logger>
 
     <!-- root -->
-    <root level="ERROR">
+    <root level="WARN">
         <appender-ref ref="STDOUT" />
+        <appender-ref ref="FILE" />
     </root>
 
 </configuration>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <jmxConfigurator/>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <statusListener class="ch.qos.logback.core.status.NopStatusListener" />
+
+    <!-- STDOUT appender -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <Pattern>
+                %clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%5p) %clr([%15.15t]){faint} %clr([%X{correlationId:-}]){yellow} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n%wEx
+            </Pattern>
+        </layout>
+    </appender>
+
+    <!-- FILE appender -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/kol-rest-api-local.log</file>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{correlationId:-}] %logger{40} - %msg%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/kol-rest-api-local.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>10MB</maxFileSize>
+            <maxHistory>3</maxHistory>
+            <totalSizeCap>50MB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
+    <!-- application Logger -->
+    <logger name="com.kt" level="DEBUG" additivity="false">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="FILE"/>
+    </logger>
+
+    <!-- R2DBC loggers for local development -->
+    <logger name="org.springframework.r2dbc" level="DEBUG" additivity="false">
+        <appender-ref ref="STDOUT" />
+    </logger>
+    <logger name="io.r2dbc.h2" level="DEBUG" additivity="false">
+        <appender-ref ref="STDOUT"/>
+    </logger>
+
+    <!-- Spring framework loggers -->
+    <logger name="org.springframework.core" level="WARN" additivity="false" >
+        <appender-ref ref="STDOUT" />
+    </logger>
+    <logger name="org.springframework.beans" level="WARN" additivity="false" >
+        <appender-ref ref="STDOUT" />
+    </logger>
+    <logger name="org.springframework.context" level="WARN" additivity="false" >
+        <appender-ref ref="STDOUT" />
+    </logger>
+    <logger name="org.springframework.web" level="INFO" additivity="false" >
+        <appender-ref ref="STDOUT" />
+    </logger>
+
+    <!-- root -->
+    <root level="INFO">
+        <appender-ref ref="STDOUT" />
+        <appender-ref ref="FILE" />
+    </root>
+
+</configuration>
