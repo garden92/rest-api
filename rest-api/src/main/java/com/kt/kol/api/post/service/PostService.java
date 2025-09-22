@@ -5,14 +5,15 @@ import com.kt.kol.api.post.model.PostDTO;
 import com.kt.kol.api.post.repository.PostRepository;
 import com.kt.kol.api.user.repository.UserRepository;
 import com.kt.kol.common.exception.BusinessException;
+import com.kt.kol.common.model.PageDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -22,10 +23,24 @@ public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
 
-    public Flux<PostDTO> findAllPosts(int page, int size) {
+    public Mono<PageDTO<PostDTO>> findAllPostsPaged(int page, int size) {
         int offset = page * size;
-        return postRepository.findAllWithPagination(size, offset)
-                .flatMap(this::enrichPostWithUser);
+
+        Mono<Long> countMono = postRepository.count();
+        Mono<List<PostDTO>> dataMono = postRepository.findAllWithPagination(size, offset)
+                .flatMap(this::enrichPostWithUser)
+                .collectList();
+
+        return Mono.zip(countMono, dataMono)
+                .map(tuple -> {
+                    Long totalElements = tuple.getT1();
+                    List<PostDTO> content = tuple.getT2();
+
+                    if (totalElements == 0) {
+                        return PageDTO.empty(page, size);
+                    }
+                    return PageDTO.of(content, page, size, totalElements);
+                });
     }
 
     public Mono<PostDTO> findPostById(Long id) {
@@ -39,7 +54,7 @@ public class PostService {
 
     @Transactional
     public Mono<PostDTO> createPost(PostDTO postDTO) {
-        return userRepository.existsById(postDTO.getUserId())
+        return userRepository.existsById(postDTO.userId())
                 .flatMap(exists -> {
                     if (!exists) {
                         return Mono.error(new BusinessException("USER_NOT_FOUND", "사용자를 찾을 수 없습니다."));
@@ -52,7 +67,7 @@ public class PostService {
                     return postRepository.save(post);
                 })
                 .flatMap(this::enrichPostWithUser)
-                .doOnSuccess(post -> log.info("Post created: {}", post.getTitle()));
+                .doOnSuccess(post -> log.info("Post created: {}", post.title()));
     }
 
     @Transactional
@@ -60,14 +75,14 @@ public class PostService {
         return postRepository.findById(id)
                 .switchIfEmpty(Mono.error(new BusinessException("POST_NOT_FOUND", "게시글을 찾을 수 없습니다.")))
                 .flatMap(existingPost -> {
-                    existingPost.setTitle(postDTO.getTitle());
-                    existingPost.setContent(postDTO.getContent());
-                    existingPost.setStatus(postDTO.getStatus());
+                    existingPost.setTitle(postDTO.title());
+                    existingPost.setContent(postDTO.content());
+                    existingPost.setStatus(postDTO.status());
                     existingPost.setUpdatedAt(LocalDateTime.now());
                     return postRepository.save(existingPost);
                 })
                 .flatMap(this::enrichPostWithUser)
-                .doOnSuccess(post -> log.info("Post updated: {}", post.getTitle()));
+                .doOnSuccess(post -> log.info("Post updated: {}", post.title()));
     }
 
     @Transactional
@@ -78,14 +93,44 @@ public class PostService {
                 .doOnSuccess(v -> log.info("Post deleted: {}", id));
     }
 
-    public Flux<PostDTO> findPostsByUserId(Long userId) {
-        return postRepository.findByUserId(userId)
-                .flatMap(this::enrichPostWithUser);
+    public Mono<PageDTO<PostDTO>> findPostsByUserIdPaged(Long userId, int page, int size) {
+        long offset = (long) page * size;
+
+        Mono<Long> countMono = postRepository.countByUserId(userId);
+        Mono<List<PostDTO>> dataMono = postRepository.findByUserIdPage(userId, offset, size)
+                .flatMap(this::enrichPostWithUser)
+                .collectList();
+
+        return Mono.zip(countMono, dataMono)
+                .map(tuple -> {
+                    Long totalElements = tuple.getT1();
+                    List<PostDTO> content = tuple.getT2();
+
+                    if (totalElements == 0) {
+                        return PageDTO.empty(page, size);
+                    }
+                    return PageDTO.of(content, page, size, totalElements);
+                });
     }
 
-    public Flux<PostDTO> searchPosts(String keyword) {
-        return postRepository.searchByKeyword(keyword)
-                .flatMap(this::enrichPostWithUser);
+    public Mono<PageDTO<PostDTO>> searchPostsPaged(String keyword, int page, int size) {
+        long offset = (long) page * size;
+
+        Mono<Long> countMono = postRepository.countByKeywordSearch(keyword);
+        Mono<List<PostDTO>> dataMono = postRepository.searchByKeywordPage(keyword, offset, size)
+                .flatMap(this::enrichPostWithUser)
+                .collectList();
+
+        return Mono.zip(countMono, dataMono)
+                .map(tuple -> {
+                    Long totalElements = tuple.getT1();
+                    List<PostDTO> content = tuple.getT2();
+
+                    if (totalElements == 0) {
+                        return PageDTO.empty(page, size);
+                    }
+                    return PageDTO.of(content, page, size, totalElements);
+                });
     }
 
     private Mono<PostDTO> enrichPostWithUser(Post post) {
@@ -95,25 +140,25 @@ public class PostService {
     }
 
     private PostDTO toDTO(Post post, String username) {
-        return PostDTO.builder()
-                .id(post.getId())
-                .title(post.getTitle())
-                .content(post.getContent())
-                .userId(post.getUserId())
-                .username(username)
-                .status(post.getStatus())
-                .viewCount(post.getViewCount())
-                .createdAt(post.getCreatedAt())
-                .updatedAt(post.getUpdatedAt())
-                .build();
+        return new PostDTO(
+                post.getId(),
+                post.getTitle(),
+                post.getContent(),
+                post.getUserId(),
+                username,
+                post.getStatus(),
+                post.getViewCount(),
+                post.getCreatedAt(),
+                post.getUpdatedAt()
+        );
     }
 
     private Post toEntity(PostDTO dto) {
         return Post.builder()
-                .title(dto.getTitle())
-                .content(dto.getContent())
-                .userId(dto.getUserId())
-                .status(dto.getStatus())
+                .title(dto.title())
+                .content(dto.content())
+                .userId(dto.userId())
+                .status(dto.status())
                 .build();
     }
 }

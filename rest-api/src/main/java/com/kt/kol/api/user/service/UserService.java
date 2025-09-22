@@ -1,17 +1,20 @@
 package com.kt.kol.api.user.service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.kt.kol.api.user.model.User;
 import com.kt.kol.api.user.model.UserDTO;
 import com.kt.kol.api.user.repository.UserRepository;
 import com.kt.kol.common.exception.BusinessException;
+import com.kt.kol.common.model.PageDTO;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.time.LocalDateTime;
 
 @Slf4j
 @Service
@@ -20,9 +23,24 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    public Flux<UserDTO> findAllUsers() {
-        return userRepository.findAll()
-                .map(this::toDTO);
+    public Mono<PageDTO<UserDTO>> findAllUsersPaged(int page, int size) {
+        long offset = (long) page * size;
+
+        Mono<Long> countMono = userRepository.countAll();
+        Mono<List<UserDTO>> dataMono = userRepository.findPage(offset, size)
+                .map(this::toDTO)
+                .collectList();
+
+        return Mono.zip(countMono, dataMono)
+                .map(tuple -> {
+                    Long totalElements = tuple.getT1();
+                    List<UserDTO> content = tuple.getT2();
+
+                    if (totalElements == 0) {
+                        return PageDTO.empty(page, size);
+                    }
+                    return PageDTO.of(content, page, size, totalElements);
+                });
     }
 
     public Mono<UserDTO> findUserById(Long id) {
@@ -39,12 +57,12 @@ public class UserService {
 
     @Transactional
     public Mono<UserDTO> createUser(UserDTO userDTO) {
-        return userRepository.existsByUsername(userDTO.getUsername())
+        return userRepository.existsByUsername(userDTO.username())
                 .flatMap(exists -> {
                     if (exists) {
                         return Mono.error(new BusinessException("USER_EXISTS", "이미 존재하는 사용자명입니다."));
                     }
-                    return userRepository.existsByEmail(userDTO.getEmail());
+                    return userRepository.existsByEmail(userDTO.email());
                 })
                 .flatMap(exists -> {
                     if (exists) {
@@ -57,7 +75,7 @@ public class UserService {
                     return userRepository.save(user);
                 })
                 .map(this::toDTO)
-                .doOnSuccess(user -> log.info("User created: {}", user.getUsername()));
+                .doOnSuccess(user -> log.info("User created: {}", user.username()));
     }
 
     @Transactional
@@ -65,15 +83,15 @@ public class UserService {
         return userRepository.findById(id)
                 .switchIfEmpty(Mono.error(new BusinessException("USER_NOT_FOUND", "사용자를 찾을 수 없습니다.")))
                 .flatMap(existingUser -> {
-                    existingUser.setFirstName(userDTO.getFirstName());
-                    existingUser.setLastName(userDTO.getLastName());
-                    existingUser.setEmail(userDTO.getEmail());
-                    existingUser.setActive(userDTO.getActive());
+                    existingUser.setFirstName(userDTO.firstName());
+                    existingUser.setLastName(userDTO.lastName());
+                    existingUser.setEmail(userDTO.email());
+                    existingUser.setActive(userDTO.active());
                     existingUser.setUpdatedAt(LocalDateTime.now());
                     return userRepository.save(existingUser);
                 })
                 .map(this::toDTO)
-                .doOnSuccess(user -> log.info("User updated: {}", user.getUsername()));
+                .doOnSuccess(user -> log.info("User updated: {}", user.username()));
     }
 
     @Transactional
@@ -84,31 +102,45 @@ public class UserService {
                 .doOnSuccess(v -> log.info("User deleted: {}", id));
     }
 
-    public Flux<UserDTO> searchUsers(String query) {
-        return userRepository.searchByName(query)
-                .map(this::toDTO);
+    public Mono<PageDTO<UserDTO>> searchUsersPaged(String query, int page, int size) {
+        long offset = (long) page * size;
+
+        Mono<Long> countMono = userRepository.countByNameSearch(query);
+        Mono<List<UserDTO>> dataMono = userRepository.searchByNamePage(query, offset, size)
+                .map(this::toDTO)
+                .collectList();
+
+        return Mono.zip(countMono, dataMono)
+                .map(tuple -> {
+                    Long totalElements = tuple.getT1();
+                    List<UserDTO> content = tuple.getT2();
+
+                    if (totalElements == 0) {
+                        return PageDTO.empty(page, size);
+                    }
+                    return PageDTO.of(content, page, size, totalElements);
+                });
     }
 
     private UserDTO toDTO(User user) {
-        return UserDTO.builder()
-                .id(user.getId())
-                .username(user.getUsername())
-                .email(user.getEmail())
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .active(user.getActive())
-                .createdAt(user.getCreatedAt())
-                .updatedAt(user.getUpdatedAt())
-                .build();
+        return new UserDTO(
+                user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getActive(),
+                user.getCreatedAt(),
+                user.getUpdatedAt());
     }
 
     private User toEntity(UserDTO dto) {
         return User.builder()
-                .username(dto.getUsername())
-                .email(dto.getEmail())
-                .firstName(dto.getFirstName())
-                .lastName(dto.getLastName())
-                .active(dto.getActive())
+                .username(dto.username())
+                .email(dto.email())
+                .firstName(dto.firstName())
+                .lastName(dto.lastName())
+                .active(dto.active())
                 .build();
     }
 }

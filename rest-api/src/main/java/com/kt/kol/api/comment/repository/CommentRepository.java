@@ -10,17 +10,23 @@ import reactor.core.publisher.Mono;
 @Repository
 public interface CommentRepository extends ReactiveCrudRepository<Comment, Long> {
 
-    Flux<Comment> findByPostId(Long postId);
-
-    Flux<Comment> findByUserId(Long userId);
-
-    Flux<Comment> findByParentId(Long parentId);
-
-    @Query("SELECT * FROM comments WHERE post_id = :postId AND parent_id IS NULL ORDER BY created_at DESC")
-    Flux<Comment> findRootCommentsByPostId(Long postId);
-
     @Query("DELETE FROM comments WHERE post_id = :postId")
     Mono<Void> deleteByPostId(Long postId);
+
+    @Query("SELECT * FROM comments WHERE post_id = :postId ORDER BY created_at DESC LIMIT :size OFFSET :offset")
+    Flux<Comment> findByPostIdPage(Long postId, long offset, int size);
+
+    @Query("SELECT * FROM comments WHERE post_id = :postId AND parent_id IS NULL ORDER BY created_at DESC LIMIT :size OFFSET :offset")
+    Flux<Comment> findRootCommentsByPostIdPage(Long postId, long offset, int size);
+
+    @Query("SELECT COUNT(*) FROM comments WHERE post_id = :postId AND parent_id IS NULL")
+    Mono<Long> countRootCommentsByPostId(Long postId);
+
+    @Query("SELECT * FROM comments WHERE parent_id = :parentId ORDER BY created_at ASC LIMIT :size OFFSET :offset")
+    Flux<Comment> findByParentIdPage(Long parentId, long offset, int size);
+
+    @Query("SELECT COUNT(*) FROM comments WHERE parent_id = :parentId")
+    Mono<Long> countByParentId(Long parentId);
 
     Mono<Long> countByPostId(Long postId);
 }

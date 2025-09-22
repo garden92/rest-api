@@ -12,12 +12,17 @@ public interface UserRepository extends ReactiveCrudRepository<User, Long> {
 
     Mono<User> findByUsername(String username);
 
-    Mono<User> findByEmail(String email);
+    @Query("SELECT * FROM users ORDER BY id ASC LIMIT :size OFFSET :offset")
+    Flux<User> findPage(long offset, int size);
 
-    Flux<User> findByActive(Boolean active);
+    @Query("SELECT COUNT(*) FROM users")
+    Mono<Long> countAll();
 
-    @Query("SELECT * FROM users WHERE first_name LIKE :name% OR last_name LIKE :name%")
-    Flux<User> searchByName(String name);
+    @Query("SELECT * FROM users WHERE first_name LIKE :name% OR last_name LIKE :name% ORDER BY id ASC LIMIT :size OFFSET :offset")
+    Flux<User> searchByNamePage(String name, long offset, int size);
+
+    @Query("SELECT COUNT(*) FROM users WHERE first_name LIKE :name% OR last_name LIKE :name%")
+    Mono<Long> countByNameSearch(String name);
 
     Mono<Boolean> existsByUsername(String username);
 

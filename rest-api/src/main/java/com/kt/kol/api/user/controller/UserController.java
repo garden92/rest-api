@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.kt.kol.api.user.model.UserDTO;
 import com.kt.kol.api.user.service.UserService;
 import com.kt.kol.common.model.ResponseStdVO;
+import com.kt.kol.common.model.PageDTO;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -32,10 +33,11 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    @Operation(summary = "모든 사용자 조회", description = "시스템에 등록된 모든 사용자를 조회합니다.")
-    public Mono<ResponseStdVO<List<UserDTO>>> getAllUsers() {
-        return userService.findAllUsers()
-                .collectList()
+    @Operation(summary = "모든 사용자 조회", description = "페이지네이션을 적용하여 사용자를 조회합니다.")
+    public Mono<ResponseStdVO<PageDTO<UserDTO>>> getAllUsers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return userService.findAllUsersPaged(page, size)
                 .map(ResponseStdVO::success);
     }
 
@@ -77,9 +79,11 @@ public class UserController {
 
     @GetMapping("/search")
     @Operation(summary = "사용자 검색", description = "이름으로 사용자를 검색합니다.")
-    public Mono<ResponseStdVO<List<UserDTO>>> searchUsers(@RequestParam String query) {
-        return userService.searchUsers(query)
-                .collectList()
+    public Mono<ResponseStdVO<PageDTO<UserDTO>>> searchUsers(
+            @RequestParam String query,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return userService.searchUsersPaged(query, page, size)
                 .map(ResponseStdVO::success);
     }
 }
