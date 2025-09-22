@@ -23,38 +23,6 @@ public class HeaderUtil {
                 .map(request -> request.getHeaders().getFirst(headerName));
     }
 
-    public static Mono<String> getGlobalNo() {
-        return getHeader(HeaderConstants.GLOBAL_NO);
-    }
-
-    public static Mono<String> getChnlType() {
-        return getHeader(HeaderConstants.CHNL_TYPE);
-    }
-
-    public static Mono<String> getUserId() {
-        return getHeader(HeaderConstants.USER_ID);
-    }
-
-    public static Mono<String> getOrgId() {
-        return getHeader(HeaderConstants.ORG_ID);
-    }
-
-    public static Mono<String> getSrcId() {
-        return getHeader(HeaderConstants.SRC_ID);
-    }
-
-    public static Mono<String> getCmpnCd() {
-        return getHeader(HeaderConstants.CMPN_CD);
-    }
-
-    public static Mono<String> getLgDateTime() {
-        return getHeader(HeaderConstants.LG_DATE_TIME);
-    }
-
-    public static Mono<String> getTrFlag() {
-        return getHeader(HeaderConstants.TR_FLAG);
-    }
-
     public static Mono<String> getRequestURI() {
         return getCurrRequest()
                 .map(request -> request.getURI().getPath());

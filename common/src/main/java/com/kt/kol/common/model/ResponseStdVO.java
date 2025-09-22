@@ -2,60 +2,57 @@ package com.kt.kol.common.model;
 
 import java.time.LocalDateTime;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public record ResponseStdVO<T>(
-		TrtErrInfoDTO trtErrInfoDTO,
 		T data,
 		LocalDateTime timestamp,
+		String message,
 		boolean success) {
 
 	public static <T> ResponseStdVO<T> success(T data) {
 		return new ResponseStdVO<T>(
-				new TrtErrInfoDTO("S", "KOLS0000", "정상 처리", "success"),
 				data,
 				LocalDateTime.now(),
+				"처리성공",
 				true);
 	}
 
-	public static <T> ResponseStdVO<T> success(TrtErrInfoDTO trtErrInfoDTO, T data) {
-		return new ResponseStdVO<T>(
-				trtErrInfoDTO,
-				data,
-				LocalDateTime.now(),
-				true);
-	}
-
-	public static ResponseStdVO<Void> businessError(TrtErrInfoDTO trtErrInfoDTO) {
+	public static ResponseStdVO<Void> businessError() {
 		return new ResponseStdVO<Void>(
-				trtErrInfoDTO,
 				null,
 				LocalDateTime.now(),
+				"처리 오류가 발생했습니다",
 				false);
 	}
 
-	public static ResponseStdVO<Void> systemError(TrtErrInfoDTO trtErrInfoDTO) {
+	public static ResponseStdVO<Void> businessError(String message) {
 		return new ResponseStdVO<Void>(
-				trtErrInfoDTO,
 				null,
 				LocalDateTime.now(),
+				message,
 				false);
 	}
 
-	public static <T> ResponseStdVO<T> validationError(TrtErrInfoDTO trtErrInfoDTO, T validationDetails) {
-		return new ResponseStdVO<T>(
-				trtErrInfoDTO,
-				validationDetails,
+	public static ResponseStdVO<Void> systemError() {
+		return new ResponseStdVO<Void>(
+				null,
 				LocalDateTime.now(),
+				"시스템 오류가 발생했습니다",
+				false);
+	}
+
+	public static <T> ResponseStdVO<T> validationError(T validationDetails) {
+		return new ResponseStdVO<T>(
+				null,
+				LocalDateTime.now(),
+				"입력 값 검증 실패",
 				false);
 	}
 
 	public static ResponseStdVO<Void> notFound(String message) {
 		return new ResponseStdVO<Void>(
-				new TrtErrInfoDTO("N", "KOLS0404", "리소스를 찾을 수 없습니다", message),
 				null,
 				LocalDateTime.now(),
+				message,
 				false);
 	}
 }
