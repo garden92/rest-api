@@ -31,6 +31,9 @@ build/
 
 ### VS Code ###
 .vscode/
+.claude/
+.bmad-core/
+.serena/
 ### Maven template
 target/
 pom.xml.tag

@@ -1,147 +1,102 @@
-# spring default
 spring:
-  profiles:
-    active: mock
   application:
-    name: kol-rest-api
+    name: webflux-r2dbc-sample
+
+  profiles:
+    active: local
+
   webflux:
-    base-path: /kol-rest-api
+    base-path: /
+
+  r2dbc:
+    url: r2dbc:h2:mem:///testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password:
+    pool:
+      initial-size: 5
+      max-size: 20
+      max-idle-time: 30m
+      max-acquire-time: 5s
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      fail-on-unknown-properties: false
 
 server:
   port: 8080
-  bmon: true
+  error:
+    include-message: always
+    include-binding-errors: always
 
-# spring boot - actuator expose
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    display-request-duration: true
+    disable-swagger-default-url: true
+  api-docs:
+    path: /api-docs
+  show-actuator: true
+
 management:
   endpoints:
     web:
-      base-path: /actuator
       exposure:
-        include: health, loggers, prometheus
+        include: health,info,metrics,loggers
+      base-path: /actuator
   endpoint:
     health:
       show-details: always
 
----
-# Profile - local (PostgreSQL Database)
----
-# Profile - dev
-spring:
-  config:
-    activate:
-      on-profile: dev
-  r2dbc:
-    url: ${R2DBC_URL_DEV}
-    username: ${R2DBC_USER_NAME}
-    password: ${DB_PWD}
 logging:
-  config: classpath:logback-spring-dev.xml
-  file:
-    name: kol-rest-api
-    path: /var/log
-e2e:
-  properties:
-    path: /config/bmon/dev
-gw.itg.url: http://kol-itg-gw
-
-management:
-  health:
-    r2dbc:
-      enabled: false
-    db:
-      enabled: false
+  level:
+    root: INFO
+    com.kt.kol: DEBUG
+    org.springframework.r2dbc: DEBUG
+    io.r2dbc.h2: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
 
 ---
-# Profile - sit
 spring:
   config:
     activate:
-      on-profile: sit
-  r2dbc:
-    url: ${R2DBC_URL_SIT}
-    username: ${R2DBC_USER_NAME}
-    password: ${DB_PWD}
-logging:
-  config: classpath:logback-spring-sit.xml
-  file:
-    name: kol-rest-api
-    path: /var/log
-e2e:
-  properties:
-    path: /config/bmon/sit
-gw.itg.url: http://kol-itg-gw
+      on-profile: test
 
-management:
-  health:
-    r2dbc:
-      enabled: false
-    db:
-      enabled: false
-
----
-# Profile - prd
-spring:
-  config:
-    activate:
-      on-profile: prd
   r2dbc:
-    url: ${R2DBC_URL_PRD}
-    username: ${R2DBC_USER_NAME}
-    password: ${DB_PWD}
-logging:
-  config: classpath:logback-spring-prd.xml
-  file:
-    name: kol-rest-api
-    path: /var/log
-e2e:
-  properties:
-    path: /config/bmon/prd
-gw.itg.url: http://kol-itg-gw
-
----
-# Profile - mock (Mock 환경)
-spring:
-  config:
-    activate:
-      on-profile: mock
-  r2dbc:
-    url: r2dbc:h2:mem:///testdb?options=DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    url: r2dbc:h2:mem:///testdb;DB_CLOSE_DELAY=-1
     username: sa
     password:
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
-  flyway:
-    enabled: false
-  sql:
-    init:
-      mode: always
-      schema-locations: classpath:db/h2/schema.sql
-      data-locations: classpath:db/h2/data.sql
-server:
-  port: 8003
-  bmon: true
 
 logging:
-  config: classpath:logback-spring-dev.xml
-  file:
-    name: kol-rest-api
-    path: /var/log
+  level:
+    root: WARN
+    com.kt.kol: INFO
 
-# Mock 환경 설정
-e2e:
-  properties:
-    path: /mock/bmon
-gw.itg.url: http://localhost:8080/mock-gw
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
 
-# Mock 서버 설정
-mock:
-  enabled: true
-  delay:
-    min: 100
-    max: 500
-  failure:
-    rate: 0.1 # 10% 실패율
-  database:
-    auto-populate: true # 테스트 데이터 자동 생성
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/koldb
+    username: ${DB_USERNAME:koluser}
+    password: ${DB_PASSWORD:kolpass}
+    pool:
+      initial-size: 10
+      max-size: 50
+
+logging:
+  level:
+    root: WARN
+    com.kt.kol: INFO
+    org.springframework.r2dbc: WARN

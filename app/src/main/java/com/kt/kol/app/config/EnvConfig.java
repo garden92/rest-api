@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class EnvConfig {
 	
-	@Value("${e2e.properties.path}")
+	@Value("${e2e.properties.path:./config}")
 	private String e2ePath;
 	
 	@Bean
