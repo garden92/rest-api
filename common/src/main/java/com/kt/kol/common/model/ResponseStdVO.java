@@ -55,4 +55,12 @@ public record ResponseStdVO<T>(
 				message,
 				false);
 	}
+
+	public static <T> ResponseStdVO<T> error(String message) {
+		return new ResponseStdVO<T>(
+				null,
+				LocalDateTime.now(),
+				message,
+				false);
+	}
 }

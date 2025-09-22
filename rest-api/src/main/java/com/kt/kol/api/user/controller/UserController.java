@@ -1,7 +1,6 @@
 package com.kt.kol.api.user.controller;
 
-import java.util.List;
-
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,8 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.kt.kol.api.user.model.UserDTO;
 import com.kt.kol.api.user.service.UserService;
-import com.kt.kol.common.model.ResponseStdVO;
 import com.kt.kol.common.model.PageDTO;
+import com.kt.kol.common.model.ResponseStdVO;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -33,6 +32,7 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
+    @PreAuthorize("hasRole('USER')")
     @Operation(summary = "모든 사용자 조회", description = "페이지네이션을 적용하여 사용자를 조회합니다.")
     public Mono<ResponseStdVO<PageDTO<UserDTO>>> getAllUsers(
             @RequestParam(defaultValue = "0") int page,
@@ -42,6 +42,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('USER')")
     @Operation(summary = "사용자 조회", description = "ID로 특정 사용자를 조회합니다.")
     public Mono<ResponseStdVO<UserDTO>> getUserById(@PathVariable Long id) {
         return userService.findUserById(id)
@@ -49,6 +50,7 @@ public class UserController {
     }
 
     @GetMapping("/username/{username}")
+    @PreAuthorize("hasRole('USER')")
     @Operation(summary = "사용자명으로 조회", description = "사용자명으로 사용자를 조회합니다.")
     public Mono<ResponseStdVO<UserDTO>> getUserByUsername(@PathVariable String username) {
         return userService.findUserByUsername(username)
@@ -56,6 +58,7 @@ public class UserController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "사용자 생성", description = "새로운 사용자를 생성합니다.")
     public Mono<ResponseStdVO<UserDTO>> createUser(@RequestBody UserDTO userDTO) {
         return userService.createUser(userDTO)
@@ -63,6 +66,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "사용자 수정", description = "기존 사용자 정보를 수정합니다.")
     public Mono<ResponseStdVO<UserDTO>> updateUser(@PathVariable Long id,
             @RequestBody UserDTO userDTO) {
@@ -71,6 +75,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "사용자 삭제", description = "사용자를 삭제합니다.")
     public Mono<ResponseStdVO<Object>> deleteUser(@PathVariable Long id) {
         return userService.deleteUser(id)
@@ -78,6 +83,7 @@ public class UserController {
     }
 
     @GetMapping("/search")
+    @PreAuthorize("hasRole('USER')")
     @Operation(summary = "사용자 검색", description = "이름으로 사용자를 검색합니다.")
     public Mono<ResponseStdVO<PageDTO<UserDTO>>> searchUsers(
             @RequestParam String query,
