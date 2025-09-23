@@ -30,7 +30,13 @@
       "mcp__serena__think_about_whether_you_are_done",
       "Read(//d/**)",
       "Bash(javap:*)",
-      "Bash(mvn compile:*)"
+      "Bash(mvn compile:*)",
+      "mcp__serena__write_memory",
+      "mcp__serena__read_memory",
+      "WebSearch",
+      "Bash(ls:*)",
+      "Bash(dir:*)",
+      "Bash(java:*)"
     ],
     "deny": [],
     "ask": []
