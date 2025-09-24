@@ -36,7 +36,9 @@
       "WebSearch",
       "Bash(ls:*)",
       "Bash(dir:*)",
-      "Bash(java:*)"
+      "Bash(java:*)",
+      "Bash(mvn:*)",
+      "Bash(kotlinc:*)"
     ],
     "deny": [],
     "ask": []

@@ -12,7 +12,6 @@ data class PageDTO<T>(
     val hasPrevious: Boolean
 ) {
     companion object {
-        @JvmStatic
         fun <T> of(content: List<T>, page: Int, size: Int, totalElements: Long): PageDTO<T> {
             val totalPages = ceil(totalElements.toDouble() / size).toInt()
             val hasNext = page < totalPages - 1
@@ -21,9 +20,8 @@ data class PageDTO<T>(
             return PageDTO(content, page, size, totalElements, totalPages, hasNext, hasPrevious)
         }
 
-        @JvmStatic
-        fun <T> empty(page: Int, size: Int): PageDTO<T> {
-            return PageDTO(emptyList(), page, size, 0L, 0, false, false)
-        }
+        fun <T> empty(page: Int, size: Int): PageDTO<T> = PageDTO(
+            emptyList(), page, size, 0L, 0, false, false
+        )
     }
 }
