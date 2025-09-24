@@ -34,7 +34,7 @@ class JwtTokenService(
             .issuedAt(Date.from(now))
             .expiration(Date.from(expiry))
             .claim(JwtConfig.ROLES_CLAIM, roles)
-            .signWith(jwtConfig.secretKey, JwtConfig.SIGNATURE_ALGORITHM)
+            .signWith(jwtConfig.secretKey)
 
         additionalClaims?.forEach { (key, value) ->
             builder.claim(key, value)
