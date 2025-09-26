@@ -19,34 +19,23 @@
 			<artifactId>spring-boot-starter-webflux</artifactId>
 		</dependency>
 
-
-		<!-- JWT 라이브러리 -->
+		<!-- JWT 라이브러리 (버전은 부모 POM dependencyManagement에서 관리) -->
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-api</artifactId>
-			<version>0.12.3</version>
 		</dependency>
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-impl</artifactId>
-			<version>0.12.3</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-jackson</artifactId>
-			<version>0.12.3</version>
 			<scope>runtime</scope>
 		</dependency>
 
-		<!-- Utilities -->
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<optional>true</optional>
-		</dependency>
-
-		<!-- Kotlin dependencies -->
+		<!-- Kotlin dependencies (버전은 부모 POM dependencyManagement에서 관리) -->
 		<dependency>
 			<groupId>org.jetbrains.kotlin</groupId>
 			<artifactId>kotlin-stdlib-jdk8</artifactId>
